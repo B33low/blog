@@ -1,14 +1,14 @@
 
 
 export const SITE_FAVICON = "/favicon.png";
-export const SITE_LOGO = "/leo.png";
+export const SITE_LOGO = "/logo_cropped.webp";
 export const SITE_TITLE = "Thomas Bolteau";
-export const SITE_URL = "https://astro-theme-leo.muji.dev";
+export const SITE_URL = "https://thomasbolteau.com";
 export const SITE_DESCRIPTION =
   `
   Personal website of Thomas Bolteau.
 `;
-export const ME_AVATAR = "/leo.png";
+export const ME_AVATAR = "/logo_cropped.webp";
 export const LANGUAGES = ['en', 'fr'];
 
 interface ProjectEntry {
@@ -57,9 +57,11 @@ export const CONTACTS = {
   email: "mailto:thomas.bolteau50@gmail.com",
 };
 
-export const SLOGAN = "To infinity and beyond!";
+export const SLOGAN = "Tinkerer, Engineer, Developer";
 export const ME_DESCRIPTION =
-  `Hi, I’m Thomas!`;
+  `Hi, I'm Thomas a french passionate engineer. I have always been passionate about learning new things and solving problems. Within my academical journey I specialized in electrical engineering and software development. I am currently working as a software engineer at ENGIE GEMS.\n
+  To challenge myself I chose to start my career in a foreign country, Italy. This gave me the opportunity to learn a new language and discover a new culture. Outside of work, I enjoy giving my time to teach other freely my mother tongue, French and my other hobby such as crochet and knitting.\n
+  I am looking for opportunities to work on hardware/embedded systems projects, especially with my appetite for drones and robotics.`;
 
 
 

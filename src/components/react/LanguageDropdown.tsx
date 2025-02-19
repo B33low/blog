@@ -1,8 +1,8 @@
-import  { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { LANGUAGES } from "../../config";
 
 const Dropdown = () => {
-  const [currentLanguage, setCurrentLanguage] = useState("-");
+  const [currentLanguage, setCurrentLanguage] = useState("en");
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -58,14 +58,7 @@ const Dropdown = () => {
           className="absolute right-0 mt-2 w-20 origin-top-right rounded-md bg-zinc-900 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
           role="menu"
         >
-          <div className="py-1">
-            <button
-              className="text-slate-400 inline-block px-4 py-2 text-sm hover:bg-slate-800 w-full"
-              onClick={() => handleLanguageChange("-")}
-            >
-              -
-            </button>
-          </div>
+          
           {LANGUAGES.map((lang) => (
             <div className="py-1">
               <button
