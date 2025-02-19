@@ -11,6 +11,25 @@ export const SITE_DESCRIPTION =
 export const ME_AVATAR = "/leo.png";
 export const LANGUAGES = ['en', 'fr'];
 
+interface ProjectEntry {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  externalLink: string;
+  details: string[];
+}
+
+interface WorkExperienceEntry {
+  company: string;
+  position: string;
+  startDate: string;
+  endDate: string;
+}
+
+
+
+
 export const MENUS = [
   {
     title: "About Me",
@@ -43,7 +62,8 @@ export const ME_DESCRIPTION =
   `Hi, I’m Thomas!`;
 
 
-export const WORK_EXPERIENCE = [
+
+export const WORK_EXPERIENCE: WorkExperienceEntry[] = [
   {
     company: "ENGIE GEMS",
     position: "VIE - Software Engineer",
@@ -76,7 +96,8 @@ export const WORK_EXPERIENCE = [
 ];
 
 
-export const PROJECTS = [
+
+export const PROJECTS: ProjectEntry[] = [
     // {
     //   id: "my-first-rocket-launch",
     //   title: "My First Rocket Launch",
