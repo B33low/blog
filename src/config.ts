@@ -81,19 +81,23 @@ export const WORK_EXPERIENCE: WorkExperienceEntry[] = [
   
   {
     company: "Université Catholique de Louvain",
-    position: "Electrical Engineering Student",
+    position: "MASTER - Electrical Engineering",
     startDate: "2021",
     endDate: "2023",
   },
   
   {
     company: "Centrale Nantes",
-    position: "General Engineering Student",
+    position: "ENGINER DEGREE/MASTER - Embedded Systems Engineering",
     startDate: "2019",
     endDate: "2023",
   },
-  
-
+  {
+    company: "CPGE Lycée Clemenceau",
+    position: "PSI - Preparatory Classes - 296th/3200+ Concours Centrale-Supélec",
+    startDate: "2017",
+    endDate: "2019",
+  },
   
 ];
 
