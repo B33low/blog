@@ -88,7 +88,7 @@ export const WORK_EXPERIENCE: WorkExperienceEntry[] = [
   
   {
     company: "Centrale Nantes",
-    position: "ENGINER DEGREE/MASTER - Embedded Systems Engineering",
+    position: "ENGINEER DEGREE/MASTER - Embedded Systems Engineering",
     startDate: "2019",
     endDate: "2023",
   },
