@@ -24,3 +24,8 @@ pnpm-debug.log*
 # Vercel
 .vercel
 .*-lock
+
+build
+
+src/content/README.md
+dist/
