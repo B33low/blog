@@ -1,0 +1,44 @@
+---
+// Accept a prop "type" which can be "note" (default) or "warning"
+const { type = "note" } = Astro.props;
+let icon;
+switch (type) {
+  case "warning":
+    icon = "⚠️";
+    break;
+  default:
+    icon = "ℹ️";
+}
+---
+<div class={`callout ${type}`}>
+  <span class="callout-icon">{icon}</span>
+  <div class="callout-content">
+    <slot />
+  </div>
+</div>
+
+<style>
+.callout {
+  border-left: 4px solid;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+.callout.note {
+  border-color: #007acc;
+  background-color: #e7f3fe;
+}
+.callout.warning {
+  border-color: #d9534f;
+  background-color: #f2dede;
+}
+.callout-icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+.callout-content {
+  flex: 1;
+}
+</style>
