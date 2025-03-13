@@ -55,6 +55,7 @@ export const CONTACTS = {
   linkedIn: "https://www.linkedin.com/in/thomas-bolteau",
   github: "https://github.com/Ery4z",
   email: "mailto:thomas.bolteau50@gmail.com",
+  linkoftrust: "https://mainnet.linkoftrust.org/explore?user=HyzNSD8EyQKPr85H7j8mLSs27gsDm9AXpyo47HRD8rq8",
 };
 
 export const SLOGAN = "Tinkerer, Engineer, Developer";
