@@ -1,0 +1,56 @@
+---
+title: "Mon expérience de la connection SPI sur breadboard"
+description: "L'enfer des interférences et des contacts mécaniques douteux."
+date: 2025-04-08
+cover: "https://public.bnbstatic.com/static/academy/uploads/2e10396461f643909d9ad6037e5a7b60.png"
+tags:
+  - STM32
+draft: true
+---
+
+# Mon expérience de la connection SPI sur breadboard
+
+Dans cet article, je vous raconte en détail mon expérience récente de connexion SPI entre mon **STM32F411** et deux capteurs : le **lsm6dso32** et le **lis2mdl**. Ce projet, qui m'a fait vivre des moments techniques difficiles, met en lumière plusieurs problèmes liés aux interférences électriques et à la robustesse des connexions sur breadboard.
+
+## Problèmes rencontrés
+
+### Interférences entre CS et MOSI
+
+Au début de mes tests, j'ai constaté que lorsque les fils reliant le CS (Chip Select) et le MOSI (Master Out Slave In) étaient trop proches (moins de 2 cm), des interférences se produisaient. Ces interférences perturbaient la communication et rendaient le capteur totalement inopérant. Ce problème souligne l'importance d'une bonne gestion des espaces entre les fils sur des montages de précision.
+
+### Instabilité des connexions sur breadboard
+
+Même en opérant à un débit inférieur à 1 Mbps, l'utilisation de la breadboard s'est avérée problématique. La mauvaise qualité des contacts sur la breadboard entraînait une connexion très instable. Cette situation était exacerbée par le montage sur une planche non conçue pour des transmissions de données sensibles, rendant l'ensemble du système difficile à fiabiliser.
+
+## Solutions et améliorations
+
+### Passage à une connexion directe
+
+Pour remédier aux problèmes d'instabilité, j'ai remplacé la breadboard par un **jumper wire** direct reliant le Nucleo 64 STM32 au capteur. Cette solution a notablement amélioré la qualité de la connexion, bien qu'elle ne soit pas encore parfaite. Le montage direct permet de réduire les interférences et d'améliorer la robustesse des contacts.
+
+### Besoin d'un shield SPI dédié
+
+Fort de ces expérimentations, j'en suis venu à envisager la nécessité de développer un **shield SPI** spécialement dédié. Un tel shield offrirait plusieurs avantages :
+- **Réduction des interférences :** en organisant soigneusement le câblage, le risque d'interférence entre les fils (CS, MOSI, etc.) serait minimisé.
+- **Stabilité accrue :** des connexions robustes et bien conçues garantiraient une transmission des données plus fiable.
+- **Extension aisée :** en permettant de connecter plusieurs capteurs sur le même bus SPI sans compromettre la qualité de la communication.
+
+## Illustrations et diagrammes
+
+Pour mieux comprendre les enjeux et les modifications apportées, je vous propose quelques visuels :
+
+![Schéma de connexion SPI](./images/schema_spiconnexion.png)
+
+*Schéma illustrant le montage initial et le problème d'interférence.*
+
+![Photo du montage sur breadboard](./images/montage_breadboard.jpg)
+
+*Photo du montage sur breadboard montrant les contacts instables.*
+
+> Vous pouvez ajouter d'autres diagrammes ou photos pour détailler les différentes étapes et améliorations du montage.
+
+## Conclusion
+
+Cette expérience m'a permis de réaliser qu'une configuration sur breadboard, bien que pratique pour les tests rapides, n'est pas adaptée pour des communications série sensibles telles que le SPI. L'amélioration obtenue avec une connexion directe confirme l'importance d'une bonne conception matérielle, et renforce l'intérêt pour la réalisation d'un shield SPI dédié pour une meilleure fiabilité du système.
+
+

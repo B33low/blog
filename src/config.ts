@@ -1,14 +1,14 @@
 
 
-export const SITE_FAVICON = "/favicon.png";
-export const SITE_LOGO = "/logo_cropped.webp";
-export const SITE_TITLE = "Thomas Bolteau";
-export const SITE_URL = "https://thomasbolteau.com";
+export const SITE_FAVICON = "/bee_logo_dark_transparent.png";
+export const SITE_LOGO = "/bee_logo_dark_transparent.png";
+export const SITE_TITLE = "Thomas BOLTEAU";
+export const SITE_URL = "https://hexadecilab.com";
 export const SITE_DESCRIPTION =
   `
   Personal website of Thomas Bolteau.
 `;
-export const ME_AVATAR = "/logo_cropped.webp";
+export const ME_AVATAR = "/bee_logo_dark_transparent.png";
 export const LANGUAGES = ['en', 'fr'];
 
 interface ProjectEntry {
@@ -43,7 +43,7 @@ export const MENUS = [
   },
   {
     title: "Github",
-    link: "https://github.com/Ery4z",
+    link: "https://github.com/B33low",
     target: "_blank",
     icon: "github",
   },
@@ -53,7 +53,7 @@ export const FOOTER_CONTENT = "Thomas Bolteau. All rights reserved.";
 
 export const CONTACTS = {
   linkedIn: "https://www.linkedin.com/in/thomas-bolteau",
-  github: "https://github.com/Ery4z",
+  github: "https://github.com/B33low",
   email: "mailto:thomas.bolteau50@gmail.com",
   linkoftrust: "https://mainnet.linkoftrust.org/explore?user=HyzNSD8EyQKPr85H7j8mLSs27gsDm9AXpyo47HRD8rq8",
 };
