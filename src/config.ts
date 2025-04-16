@@ -10,7 +10,7 @@ export const SITE_DESCRIPTION =
 `;
 export const ME_AVATAR = "/bee_logo_dark_transparent.png";
 export const LANGUAGES = ['en', 'fr'];
-
+export const DEFAULT_LANGUAGE = 'en';
 interface ProjectEntry {
   id: string;
   title: string;

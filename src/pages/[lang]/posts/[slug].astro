@@ -12,7 +12,7 @@ import { CollectionType } from "../../../types";
 type Post = CollectionEntry<CollectionType.Blog>;
 export async function getStaticPaths() {
   const posts = await getCollection(CollectionType.Blog);
-  return posts.map((post) => {
+  return posts.map((post:any) => {
     const [lang, ...slug] = post.slug.split("/");
     return {
       params: { lang, slug: slug.join("/") || undefined },
@@ -43,7 +43,7 @@ const coverSrc = isCoverObject ? `${cover.src}` : `${cover}`;
       <h1 id="header" class="text-5xl text-center font-title font-black text-white">{post.data.title}</h1>
       <div class="flex items-center justify-center gap-2">
         <DateTag date={post.data.date} />
-        {post.data.tags?.map((tag) => <Tag tag={tag} />)}
+        {post.data.tags?.map((tag:string) => <Tag tag={tag} />)}
       </div>
       <p class="text-lg text-center text-white max-w-[576px]">{post.data.description}</p>
     </div>
