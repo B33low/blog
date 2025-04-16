@@ -1,32 +1,43 @@
 ---
-title: "Mon expérience de la connection SPI sur breadboard"
+title: "STM32 & SPI: Comment bien ne pas réussir à écrire un driver Part 1"
 description: "L'enfer des interférences et des contacts mécaniques douteux."
-date: 2025-04-08
+date: 2025-04-15
 cover: "https://public.bnbstatic.com/static/academy/uploads/2e10396461f643909d9ad6037e5a7b60.png"
 tags:
   - STM32
-draft: true
+  - SPI
+draft: false
 ---
+# Contexte
+
+J'ai décidé il y a quelques semaines de me lancer dans la réalisation d'un ordinateur de vol basé sur un STM32 F411. Malhereusement l'écriture des drivers ne s'est pas passé comme prévu.
+
+Je pense écrire dans les prochaines semaines des articles dédié aux differents capteurs, mais celui ci sera dédié aux soucis non triviaux que j'ai pu rencontrer.
 
 # Mon expérience de la connection SPI sur breadboard
 
-Dans cet article, je vous raconte en détail mon expérience récente de connexion SPI entre mon **STM32F411** et deux capteurs : le **lsm6dso32** et le **lis2mdl**. Ce projet, qui m'a fait vivre des moments techniques difficiles, met en lumière plusieurs problèmes liés aux interférences électriques et à la robustesse des connexions sur breadboard.
+Dans un premier temps j'ai voulu créer une structure sur une breadboard afin de simuler un pcb, à savoir un bus SPI pour MOSI MISO SCLK et des traces différentes pour les différentes pour les différentes CS.
+
+À tous ceux qui peuvent en avoir l'idée, je ne recommande pas de le faire sur une breadboard, peut-être que mes cables étaient de faible qualité, mais ce qui est certain c'est que j'y ai perdu des cheveux et des heures de sommeils.
 
 ## Problèmes rencontrés
 
 ### Interférences entre CS et MOSI
 
-Au début de mes tests, j'ai constaté que lorsque les fils reliant le CS (Chip Select) et le MOSI (Master Out Slave In) étaient trop proches (moins de 2 cm), des interférences se produisaient. Ces interférences perturbaient la communication et rendaient le capteur totalement inopérant. Ce problème souligne l'importance d'une bonne gestion des espaces entre les fils sur des montages de précision.
+Au début de mes tests, j'ai constaté que lorsque les fils reliant le CS (Chip Select) et le MOSI (Master Out Slave In) étaient trop proches (moins de 2 cm), des interférences se produisaient. Ces interférences perturbaient la communication et rendaient le capteur totalement inopérant. 
+
+Malheureusement ce n'était pas clair. Après branchement et lors de tentative de lecture des differents registres WHO_AM_I, je lisais toujours 0x00 ou 0xFF. Impossible de savoir si le capteur était défaillant ou non. 
+
 
 ### Instabilité des connexions sur breadboard
 
-Même en opérant à un débit inférieur à 1 Mbps, l'utilisation de la breadboard s'est avérée problématique. La mauvaise qualité des contacts sur la breadboard entraînait une connexion très instable. Cette situation était exacerbée par le montage sur une planche non conçue pour des transmissions de données sensibles, rendant l'ensemble du système difficile à fiabiliser.
+Même en opérant à un débit inférieur à 1 Mbps, l'utilisation de la breadboard s'est avérée problématique. Les contacts mécanique entre les cables et les connecteurs de la breadboard n'étaient vraiment pas robuste, résultant en des mesure très bruités sans vrai possibilités de savoir que les données renvoyé par le capteur n'étaient pas correctes.
 
 ## Solutions et améliorations
 
 ### Passage à une connexion directe
 
-Pour remédier aux problèmes d'instabilité, j'ai remplacé la breadboard par un **jumper wire** direct reliant le Nucleo 64 STM32 au capteur. Cette solution a notablement amélioré la qualité de la connexion, bien qu'elle ne soit pas encore parfaite. Le montage direct permet de réduire les interférences et d'améliorer la robustesse des contacts.
+Pour remédier aux problèmes d'instabilité, j'ai remplacé la breadboard par des **jumper wire** direct reliant le Nucleo 64 STM32 au capteur. Cette solution a notablement amélioré la qualité de la connexion, bien qu'elle ne soit pas encore parfaite. Le montage direct permet de réduire les interférences et d'améliorer la robustesse des contacts.
 
 ### Besoin d'un shield SPI dédié
 
@@ -35,22 +46,19 @@ Fort de ces expérimentations, j'en suis venu à envisager la nécessité de dé
 - **Stabilité accrue :** des connexions robustes et bien conçues garantiraient une transmission des données plus fiable.
 - **Extension aisée :** en permettant de connecter plusieurs capteurs sur le même bus SPI sans compromettre la qualité de la communication.
 
+Cependant avant de le réaliser je dois finir d'implémenter mes drivers pour chaque capteurs afin d'être certain du cablage.
+
 ## Illustrations et diagrammes
 
 Pour mieux comprendre les enjeux et les modifications apportées, je vous propose quelques visuels :
 
-![Schéma de connexion SPI](./images/schema_spiconnexion.png)
+![Schéma de connexion SPI](../../images/breadboard-sensor.jpg)
 
 *Schéma illustrant le montage initial et le problème d'interférence.*
 
-![Photo du montage sur breadboard](./images/montage_breadboard.jpg)
+![Connection direct descapteurs](../../images/direct-connection-sensor.jpg)
 
-*Photo du montage sur breadboard montrant les contacts instables.*
+*Photo du montage après connection direct du senseur.*
 
-> Vous pouvez ajouter d'autres diagrammes ou photos pour détailler les différentes étapes et améliorations du montage.
-
-## Conclusion
-
-Cette expérience m'a permis de réaliser qu'une configuration sur breadboard, bien que pratique pour les tests rapides, n'est pas adaptée pour des communications série sensibles telles que le SPI. L'amélioration obtenue avec une connexion directe confirme l'importance d'une bonne conception matérielle, et renforce l'intérêt pour la réalisation d'un shield SPI dédié pour une meilleure fiabilité du système.
 
 
