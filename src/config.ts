@@ -1,7 +1,7 @@
 
 
 export const SITE_FAVICON = "/bee_logo_dark_transparent.webp";
-export const SITE_LOGO = "/bee_logo_dark_transparent..webp";
+export const SITE_LOGO = "/bee_logo_dark_transparent.webp";
 export const SITE_TITLE = "Thomas BOLTEAU";
 export const SITE_URL = "https://hexadecilab.com";
 export const SITE_DESCRIPTION =
