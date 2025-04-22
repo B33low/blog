@@ -17,7 +17,8 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
 
     const redirectLang = preferredLang || DEFAULT_LANGUAGE;
 
-    return context.redirect(`/${redirectLang}`, 302);
+    return context.redirect(`/${redirectLang}`, 301);
+
   }
 
   return next(); // Continue as normal
