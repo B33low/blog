@@ -14138,7 +14138,7 @@ class SettingTab extends obsidian.PluginSettingTab {
             .setName("Jpeg Quality")
             .setDesc("Jpeg quality selection (30 to 100).")
             .addText((text) => text
-            .setValue(String(this.plugin.settings.JpegQuality))
+            .setValue(String(this.plugin.settings.webpQuality))
             .onChange((value) => __awaiter(this, void 0, void 0, function* () {
             let numberValue = Number(value);
             if (isNaN(numberValue) ||
@@ -14148,7 +14148,7 @@ class SettingTab extends obsidian.PluginSettingTab {
                 displayError("The value should be a positive integer number between 10 and 100!");
                 return;
             }
-            this.plugin.settings.JpegQuality = numberValue;
+            this.plugin.settings.webpQuality = numberValue;
             yield this.plugin.saveSettings();
         })));
         new obsidian.Setting(containerEl)
@@ -20384,7 +20384,7 @@ function imageTagProcessor(app, noteFile, settings, defaultdir) {
                             let fileExt = yield getFileExt(fileData, parsedUrl.pathname);
                             if (fileExt == "png" && settings.PngToJpeg) {
                                 const blob = new Blob([new Uint8Array(fileData)]);
-                                fileData = yield blobToJpegArrayBuffer(blob, settings.JpegQuality * 0.01);
+                                fileData = yield blobToJpegArrayBuffer(blob, settings.webpQuality * 0.01);
                                 logError("arbuf: ");
                                 logError(fileData);
                             }
@@ -20919,15 +20919,15 @@ class LocalImagesPlugin extends obsidian.Plugin {
                                 if (this.settings.PngToJpegLocal && fileExt == "png") {
                                     logError("converting to Jpeg");
                                     const blob = new Blob([new Uint8Array(yield this.app.vault.adapter.readBinary(oldpath))]);
-                                    newBinData = yield blobToJpegArrayBuffer(blob, this.settings.JpegQuality * 0.01);
+                                    newBinData = yield blobToJpegArrayBuffer(blob, this.settings.webpQuality * 0.01);
                                     newMD5 = md5Sig(newBinData);
                                     logError(newBinData);
                                     if (newBinData != null) {
                                         if (this.settings.useMD5ForNewAtt) {
-                                            newpath = pathJoin([mdir, newMD5 + ".jpeg"]);
+                                            newpath = pathJoin([mdir, newMD5 + ".webp"]);
                                         }
                                         else {
-                                            newpath = pathJoin([mdir, cFileName(((_f = path__default["default"].parse(el.link)) === null || _f === void 0 ? void 0 : _f.name) + ".jpeg")]);
+                                            newpath = pathJoin([mdir, cFileName(((_f = path__default["default"].parse(el.link)) === null || _f === void 0 ? void 0 : _f.name) + ".webp")]);
                                         }
                                         newlink = yield getRDir(note, this.settings, newpath);
                                     }

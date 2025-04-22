@@ -39,7 +39,7 @@ After installing VSCode, configure the tools:
 1. Open the **Extensions** panel.
 2. Install **STM32 VS Code Extension**.
 
-![STM32 Extension Installation](../../images/565cda6a1352ebb74c1f97efc3d0f1c7_MD5.jpeg)
+![STM32 Extension Installation](../../images/565cda6a1352ebb74c1f97efc3d0f1c7_MD5.webp)
 
 Once installed, configure the extension to point to the correct STM32 tool paths:
 
@@ -61,29 +61,29 @@ We will send a message over UART from the STM32 and blink the onboard LED.
 **STM32CubeMX** is ST’s proprietary software that lets you visually configure the microcontroller (GPIO, SPI, UART, I2C, DMA, etc.) and automatically generate the code.
 
 1. In VSCode, open the **STM32 VS Code Extension** panel.  
-   ![STM32 VS Code Extension Panel](../../images/85d1b2484bc351e1ddb9969595ccfcf6_MD5.jpeg)
+   ![STM32 VS Code Extension Panel](../../images/85d1b2484bc351e1ddb9969595ccfcf6_MD5.webp)
 
 2. Launch **STM32CubeMX** using the dedicated button.  
-   ![Launching STM32CubeMX](../../images/fe988d8c065be00f56923fec8f9de010_MD5.jpeg)
+   ![Launching STM32CubeMX](../../images/fe988d8c065be00f56923fec8f9de010_MD5.webp)
 
 3. Create a new project.  
-   ![New Project Creation](../../images/dad1056dd12d64d3da419120abf90026_MD5.jpeg)
+   ![New Project Creation](../../images/dad1056dd12d64d3da419120abf90026_MD5.webp)
 
    - Select your board or microcontroller.  
-     ![Board Selection](../../images/d97e0308efb265549dd2d49b6db77125_MD5.jpeg)
+     ![Board Selection](../../images/d97e0308efb265549dd2d49b6db77125_MD5.webp)
 
    - Ensure the LED (GPIO) is configured, and note the “User Label.”  
-     ![LED Configuration](../../images/f33b7af6c74c024efb1924b979d1152b_MD5.jpeg)
+     ![LED Configuration](../../images/f33b7af6c74c024efb1924b979d1152b_MD5.webp)
 
    - Verify that UART is enabled and set to **115200 Baud**.  
-     ![UART Configuration](../../images/1b1634ca22f9d64a3e286ec4ebb61a0b_MD5.jpeg)
+     ![UART Configuration](../../images/1b1634ca22f9d64a3e286ec4ebb61a0b_MD5.webp)
 
 4. In the **Project Manager** tab, name your project and generate the code.  
    > **Important**: Select **CMake** as your toolchain!  
-   ![Project Manager - Code Generation](../../images/38e1bcc86ec027345ccf54802b507a1a_MD5.jpeg)
+   ![Project Manager - Code Generation](../../images/38e1bcc86ec027345ccf54802b507a1a_MD5.webp)
 
 5. Return to VSCode and **import the CMake project**.  
-   ![CMake Project Import](../../images/6f0effcd4ef4d3a78261265f03e778d3_MD5.jpeg)
+   ![CMake Project Import](../../images/6f0effcd4ef4d3a78261265f03e778d3_MD5.webp)
 
 6. Restart VSCode if needed and pick the **Debug** configuration when prompted.
 
@@ -172,7 +172,7 @@ int main(void)
 
 Compile and flash your STM32 by starting the **debugger** in VSCode:
 
-![Starting the Debugger](../../images/03ad4d833cd46a328094ed00fc7ad68d_MD5.jpeg)
+![Starting the Debugger](../../images/03ad4d833cd46a328094ed00fc7ad68d_MD5.webp)
 
 ### Viewing the UART Output
 
@@ -186,6 +186,6 @@ screen /dev/ttyACM0 115200
 
 You should see your messages appear:
 
-![UART Output in Terminal](../../images/d50c96450533bb1c400e9639886e5d96_MD5.jpeg)
+![UART Output in Terminal](../../images/d50c96450533bb1c400e9639886e5d96_MD5.webp)
 
 And that’s it! You have successfully set up your STM32 programming environment on Fedora 41 with VSCode.

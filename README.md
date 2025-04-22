@@ -7,7 +7,7 @@ For the starry sky background animation on the page, I implemented the continuou
 
 This background component is created using React and Canvas. Since animations are typically resource-intensive, I added the [client:idle Client Directive](https://docs.astro.build/en/reference/directives-reference/#clientidle) to this component to ensure it doesn't impact the page's loading speed.
 
-![Theme Preview](public/theme-preview.png)
+![Theme Preview](public/theme-preview.webp)
 
 ## Install 
 You can quickly create an Astro blog project and use this theme as a template with the following command in just a few seconds.
