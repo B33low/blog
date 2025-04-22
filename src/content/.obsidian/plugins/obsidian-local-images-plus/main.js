@@ -14120,18 +14120,18 @@ class SettingTab extends obsidian.PluginSettingTab {
             .setName("Convert PNG to JPEG (Web Images)")
             .setDesc("Convert all downloaded PNG files to JPEG. May reduce file size by several times, but can also affect performance.")
             .addToggle((toggle) => toggle
-            .setValue(this.plugin.settings.PngToJpeg)
+            .setValue(this.plugin.settings.webpToJpeg)
             .onChange((value) => __awaiter(this, void 0, void 0, function* () {
-            this.plugin.settings.PngToJpeg = value;
+            this.plugin.settings.webpToJpeg = value;
             yield this.plugin.saveSettings();
         })));
         new obsidian.Setting(containerEl)
             .setName("Convert PNG to JPEG (Pasted Images)")
             .setDesc("Convert all pasted PNG files to JPEG. May reduce file size by several times, but can also affect performance.")
             .addToggle((toggle) => toggle
-            .setValue(this.plugin.settings.PngToJpegLocal)
+            .setValue(this.plugin.settings.webpToJpegLocal)
             .onChange((value) => __awaiter(this, void 0, void 0, function* () {
-            this.plugin.settings.PngToJpegLocal = value;
+            this.plugin.settings.webpToJpegLocal = value;
             yield this.plugin.saveSettings();
         })));
         new obsidian.Setting(containerEl)
@@ -20382,7 +20382,7 @@ function imageTagProcessor(app, noteFile, settings, defaultdir) {
                         return __awaiter(this, void 0, void 0, function* () {
                             const parsedUrl = new url.URL(link);
                             let fileExt = yield getFileExt(fileData, parsedUrl.pathname);
-                            if (fileExt == "png" && settings.PngToJpeg) {
+                            if (fileExt == "png" && settings.webpToJpeg) {
                                 const blob = new Blob([new Uint8Array(fileData)]);
                                 fileData = yield blobToJpegArrayBuffer(blob, settings.webpQuality * 0.01);
                                 logError("arbuf: ");
@@ -20916,7 +20916,7 @@ class LocalImagesPlugin extends obsidian.Plugin {
                                 const fileExt = yield getFileExt(oldBinData, oldpath);
                                 logError("oldbindata: " + oldBinData);
                                 logError("oldext: " + fileExt);
-                                if (this.settings.PngToJpegLocal && fileExt == "png") {
+                                if (this.settings.webpToJpegLocal && fileExt == "png") {
                                     logError("converting to Jpeg");
                                     const blob = new Blob([new Uint8Array(yield this.app.vault.adapter.readBinary(oldpath))]);
                                     newBinData = yield blobToJpegArrayBuffer(blob, this.settings.webpQuality * 0.01);
