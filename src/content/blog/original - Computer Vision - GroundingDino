@@ -1,0 +1,30 @@
+As of 2025, Visual Transformers seems to be the hot topic in computer vision research.
+How was it before ?
+During the 2010's we have seen a huge improvement of computer vision models, wit hthe rise of alexnet in 2011 CNN ruled. Science and research improved iteratively and allowed tinkers to have an easy access to models like the YOLO family.
+The YOLO models were a revolution, nearly plug and play, they allowed easy fine tuning to fit it to our constraints and improve performances for the tasks we needed.
+The drawback and main limitation were always the dataset available for the training. The more representative the dataset is of the real inference environment of the actual use case of the final model is, the better the performances.
+For example if you train yolo to detect cat and dogs with a dataset repartition of 1 dog per 9 cats, we can assume that the models will learn to detect animals standing on 4 legs and output always "cat" as it will in worst cas fail 1/10 times. 
+If this is fairly straightforward for simple classes like this, one can imagine that more subtiles class may be costly and hard to record in sufficent quantity to train a balanced model. 
+For example let's says that you try to train an animal recognition model. You want tyour model to be usable everywhere in the world (bold claim) because of external constraint and detect "prey" "predator".
+It wont cost too much to record data in your garden, or in the forest nearby. But you may not see exotic animal in your european environment. 
+You cannot assume that the learned information of "prey" will be equivaletn to "worldwide prey" but more to "european prey". This imply that to have good performances you will need to record data a bit everywhere in the world, and ANNOTATE IT. 
+The annotation is another big problem of theses models. To train them you have to do supervised learning, which mean go through every picture in your dataset and draw a box with a label around what you want to detect, and you better be precise not to degrate model performances !
+
+Ok, now we get the issues, what did the amazing researchers have done ? Fast forward to 2017 with the paper "Attention is all you need" where the transformer architecture has been theorised and verified. They have been used at first to do text prediction, they allow the researcher not to have to annotate the data which make it cheaper by human labour cost, but more expensive in energy as they require more training time and ressources for inferences. But they learn the concepts by themselves !
+What if we do this with images ? This is what have been done with ResNet in 2019 by using the self attention blocks caracteristic of the transformers in the traditionnal image detector architecture. In 2020 ViT architecture was born, a Visual Transformer reaching state of the art performances.
+
+Great but what about Grouding dino ?
+Enters multimodality !
+The concept of multimodality is to mix the information from 2 distincts nature to get more information (ex: image-audio, image-text, audio-text, ...)
+When I was writing my master thesis in 2021, multimodality was a hot topic, I got asked to create a multimodal dataset image-radar for training a Vision-Radar Transformer to track vehicule in 3D. But in the end the real winner was the text-vision multimodality. Here is why:
+
+If you show image of a boat to a vision-only model, he will definetly not know what a sail is, however, with a text model trained on every book in the world it is easy to know that the sail is usually white and above the boat hull. Even if the model doesnt know what is a hull the text model do. So by combining both information the magic appear.
+What does it change actually ? It's is not only a cool feature, it allow to not needing much annotation of images anymore when we want to detect a new class (as long as the concept is known by the text model and not too niche !)
+We are no more limited to classes defined at training time ! We can modify the wanted detection on the fly ! Look at this small experiment i have done below, changing mid video the wanted detection. In a next article i will explain in more detail how i setted this up.
+/Gif of fpv drone footage with grounding dino running and changing mid video the detection classes in real time/
+
+Grounding dino is at that moment one of the most performant open-source model to do detection. Newer model such as GroundingDino1.5 or groundingDinoX exist but are closed source.
+
+
+
+
