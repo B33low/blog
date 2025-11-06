@@ -38,22 +38,41 @@ const coverSrc = isCoverObject ? `${cover.src}` : `${cover}`;
     <meta property="twitter:image" content={coverSrc} />
   </Fragment>
 
-  <div class="flex flex-col gap-8 md:w-5/6 px-4 py-12 sm:px-8 mx-auto">
-    <div class="flex flex-col gap-6 items-center justify-center max-w-screen-sm mx-auto">
-      <h1 id="header" class="text-5xl text-center font-title font-black text-white">{post.data.title}</h1>
+  <!-- WIDER OUTER CONTAINER -->
+  <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 flex flex-col gap-8">
+    <!-- WIDER HEADER BLOCK -->
+    <div class="flex flex-col gap-6 items-center justify-center mx-auto w-full max-w-3xl text-center">
+      <h1 id="header" class="text-5xl font-title font-black text-white">{post.data.title}</h1>
       <div class="flex items-center justify-center gap-2">
         <DateTag date={post.data.date} />
         {post.data.tags?.map((tag:string) => <Tag tag={tag} />)}
       </div>
-      <p class="text-lg text-center text-white max-w-[576px]">{post.data.description}</p>
+      <p class="text-lg text-white max-w-2xl">{post.data.description}</p>
     </div>
-    {coverSrc && <img src={coverSrc} alt={post.data.title} class="w-full max-w-screen-md mx-auto rounded-lg" />}
+
+    <!-- COVER CAN GROW MORE ON BIG SCREENS -->
+    {coverSrc && (
+      <img
+        src={coverSrc}
+        alt={post.data.title}
+        class="w-full max-w-5xl mx-auto rounded-lg"
+      />
+    )}
   </div>
-  <div
-    class="relative flex flex-col gap-3 max-w-screen-md mx-auto px-4 sm:px-6 text-xl leading-relaxed text-white bg-neutral-900/90 rounded-lg"
-  >
+
+  <!-- CONTENT: WIDER, WITH TAILWIND TYPOGRAPHY FOR NICE MEASURE -->
+  <article
+  class="relative mx-auto w-full px-4 sm:px-6 lg:px-8 text-xl leading-relaxed text-white bg-neutral-900/90 rounded-lg max-w-4xl xl:max-w-5xl 2xl:max-w-6xl"
+>
+  <div class="prose prose-invert prose-lg xl:prose-xl max-w-none
+              prose-p:text-justify prose-li:text-justify prose-blockquote:text-justify [&_p]:my-4
+              [&_p:first-child]:mt-0
+              [&_p:last-child]:mb-0
+              [hyphens:auto]">
     <PostContent post={post} />
   </div>
+</article>
+
   <Slogan atBottom />
 </Layout>
 

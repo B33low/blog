@@ -8,6 +8,7 @@ import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 import icon from "astro-icon";
 import { SITE_URL,LANGUAGES } from "./src/config";
+import remarkBreaks from 'remark-breaks'
 // https://astro.build/config
 export default defineConfig({
   site: SITE_URL,
@@ -26,7 +27,7 @@ export default defineConfig({
       shikiConfig: {
         theme: "dark-plus",
       },
-      remarkPlugins: [remarkMath],
+      remarkPlugins: [remarkMath,remarkBreaks],
       rehypePlugins: [rehypeKatex],
     }),
     sitemap(),
@@ -35,4 +36,5 @@ export default defineConfig({
     icon({}),
   ],
   output: "static",
+  markdown: { remarkPlugins: [remarkBreaks]}
 });
