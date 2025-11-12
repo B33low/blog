@@ -22,7 +22,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <atom:link href={Astro.url} rel="self" type="application/rss+xml"></atom:link>
 <!-- Canonical URL -->
 <link rel="canonical" href={canonicalURL} />
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
 <!-- Google tag (gtag.js) -->
 <script async is:inline src=`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_GTAG}`></script>
 <script>

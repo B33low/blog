@@ -1,0 +1,264 @@
+---
+// components/BeforeAfter.astro
+// Props:
+//  - before: string (required)  → URL/path to "before" image
+//  - after:  string (required)  → URL/path to "after" image
+//  - altBefore: string
+//  - altAfter:  string
+//  - start: number (0..100)     → initial split (default 50)
+//  - aspect: string              → e.g. "16/9" to reserve space (optional)
+//  - labelBefore: string         → small chip label on left image (optional)
+//  - labelAfter:  string         → small chip label on right image (optional)
+
+const {
+  before,
+  after,
+  altBefore = "Before",
+  altAfter = "After",
+  start = 50,
+  aspect,
+  labelBefore = "Before",
+  labelAfter = "After",
+} = Astro.props;
+
+// Generate a unique ID for this component instance
+const componentId = `ba-${Math.random().toString(36).substr(2, 9)}`;
+---
+
+<style>
+  .ba {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    --split: clamp(0%, var(--_split, 50%), 100%);
+    background: var(--ba-bg, #f2f2f2);
+  }
+  .ba .ba-inner {
+    position: relative;
+    width: 100%;
+    display: block;
+    aspect-ratio: var(--ba-aspect, auto);
+  }
+  .ba img {
+    width: 100%;
+    height: auto;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .ba .ba-top {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(0 calc(100% - var(--split)) 0 0);
+    transition: clip-path 0.05s linear;
+  }
+  .ba .ba-handle {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .ba .ba-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--split);
+    width: 2px;
+    transform: translateX(-1px);
+    background: color-mix(in oklab, currentColor 70%, transparent);
+  }
+  .ba .ba-grab {
+    position: absolute;
+    left: var(--split);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: color-mix(in oklab, #fff 80%, transparent);
+    border: 1px solid color-mix(in oklab, #000 15%, transparent);
+    box-shadow: 0 2px 6px color-mix(in oklab, #000 20%, transparent);
+    pointer-events: auto;
+    display: grid;
+    place-items: center;
+    cursor: ew-resize;
+  }
+  .ba .ba-grab::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border-left: 2px solid currentColor;
+    border-right: 2px solid currentColor;
+    opacity: 0.7;
+  }
+  .ba .ba-range {
+    position: absolute;
+    inset: 0;
+    opacity: 0; /* invisible but accessible */
+    width: 100%;
+    height: 100%;
+    cursor: ew-resize;
+  }
+  .ba .ba-chip {
+    position: absolute;
+    top: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1;
+    border-radius: 0.5rem;
+    background: color-mix(in oklab, #000 65%, transparent);
+    color: #fff;
+    opacity: 0.85;
+    pointer-events: none;
+    user-select: none;
+  }
+  .ba .ba-chip.left {
+    left: 0.5rem;
+  }
+  .ba .ba-chip.right {
+    right: 0.5rem;
+  }
+</style>
+
+<div class="ba" style={aspect ? `--ba-aspect:${aspect}` : ""} data-component-id={componentId} data-start={start}>
+  <div class="ba-inner">
+    <img src={before} alt={altBefore} loading="lazy" decoding="async" />
+    <div class="ba-top">
+      <img src={after} alt={altAfter} loading="lazy" decoding="async" />
+    </div>
+
+    {labelBefore && <div class="ba-chip left">{labelBefore}</div>}
+    {labelAfter && <div class="ba-chip right">{labelAfter}</div>}
+
+    <div class="ba-handle" aria-hidden="true">
+      <div class="ba-line"></div>
+      <div class="ba-grab"></div>
+    </div>
+
+    <input
+      type="range"
+      class="ba-range"
+      min="0"
+      max="100"
+      value={start}
+      step="0.5"
+      aria-label="Before/after slider"
+      role="slider"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow={start}
+    />
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Find all uninitialized before/after components
+    const components = document.querySelectorAll(".ba[data-component-id]:not([data-initialized])");
+
+    components.forEach((component) => {
+      // Mark as initialized to prevent duplicate initialization
+      component.setAttribute("data-initialized", "true");
+
+      // Get initial split value from data attribute
+      const initialSplit = Number(component.dataset.start) || 50;
+
+      // Get elements within this component
+      const root = component.querySelector(".ba-inner");
+      const range = root.querySelector(".ba-range");
+      const topLayer = root.querySelector(".ba-top");
+      const handle = root.querySelector(".ba-handle");
+      const line = root.querySelector(".ba-line");
+      const grab = root.querySelector(".ba-grab");
+
+      let split = Math.max(0, Math.min(100, initialSplit));
+      apply(split);
+
+      // Keep ARIA state updated
+      function setSplit(v) {
+        split = Math.max(0, Math.min(100, v));
+        range.value = String(split);
+        range.setAttribute("aria-valuenow", String(Math.round(split)));
+        apply(split);
+      }
+
+      function apply(v) {
+        component.style.setProperty("--_split", v + "%");
+        // CSS handles the rest via clip-path
+      }
+
+      // Keyboard navigation
+      range.addEventListener("keydown", (e) => {
+        let delta = 0;
+        if (e.key === "ArrowLeft") delta = -1;
+        else if (e.key === "ArrowRight") delta = 1;
+        else if (e.key === "Home") {
+          e.preventDefault();
+          setSplit(0);
+          return;
+        } else if (e.key === "End") {
+          e.preventDefault();
+          setSplit(100);
+          return;
+        }
+
+        if (delta !== 0) {
+          e.preventDefault();
+          setSplit(split + delta);
+        }
+      });
+
+      // Pointer/touch handling
+      function clientX(ev) {
+        return ev.touches ? ev.touches[0].clientX : ev.clientX;
+      }
+
+      function onDrag(ev) {
+        const rect = root.getBoundingClientRect();
+        const x = clientX(ev) - rect.left;
+        const pct = (x / rect.width) * 100;
+        setSplit(pct);
+      }
+
+      function startDrag(ev) {
+        ev.preventDefault();
+        onDrag(ev);
+
+        // Store handlers so we can remove them later
+        const moveHandler = (e) => {
+          e.preventDefault();
+          onDrag(e);
+        };
+
+        const endHandler = () => {
+          window.removeEventListener("pointermove", moveHandler);
+          window.removeEventListener("touchmove", moveHandler);
+          window.removeEventListener("pointerup", endHandler);
+          window.removeEventListener("touchend", endHandler);
+        };
+
+        window.addEventListener("pointermove", moveHandler);
+        window.addEventListener("touchmove", moveHandler, { passive: false });
+        window.addEventListener("pointerup", endHandler);
+        window.addEventListener("touchend", endHandler);
+      }
+
+      // Attach drag handlers
+      handle.addEventListener("pointerdown", startDrag);
+      handle.addEventListener("touchstart", startDrag, { passive: false });
+
+      // Range input handler
+      range.addEventListener("input", (e) => {
+        setSplit(Number(e.target.value));
+      });
+
+      // Also allow clicking anywhere on the range to jump to position
+      range.addEventListener("click", (e) => {
+        const rect = range.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const pct = (x / rect.width) * 100;
+        setSplit(pct);
+      });
+    });
+  });
+</script>

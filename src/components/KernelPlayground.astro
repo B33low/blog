@@ -1,0 +1,221 @@
+---
+// src/components/KernelPlayground.astro
+
+// Accept either a string URL or an imported asset object { src: string, ... }
+const { src: rawSrc, caption = "" } = Astro.props;
+const resolvedSrc = typeof rawSrc === "string" ? rawSrc : (rawSrc?.src ?? "");
+
+// Optional: quick dev assert
+if (!resolvedSrc) {
+  console.warn("[KernelPlayground] Missing/invalid `src` prop.");
+}
+---
+
+<style>
+  /* (unchanged styles) */
+  kernel-playground {
+    display: block;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    max-width: 720px;
+    margin: 1.5rem 0;
+    background: #fdfdfd;
+  }
+  .controls {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .kernel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 3.5rem);
+    gap: 0.5rem;
+    grid-column: 2;
+  }
+  .kernel-grid input {
+    width: 3.5rem;
+    text-align: center;
+    font-family: monospace;
+    padding: 0.5rem 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  .canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+    background: #f0f0f0;
+  }
+  .status {
+    font-size: 0.9rem;
+    color: #666;
+  }
+  .status.error {
+    color: #d00;
+    font-weight: bold;
+  }
+  .caption {
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+</style>
+
+<kernel-playground data-src={resolvedSrc}>
+  <div class="controls">
+    <label for="preset-select">Preset:</label>
+    <select class="preset-select" id="preset-select">
+      <option value="Identity">Identity</option>
+      <option value="Sharpen">Sharpen</option>
+      <option value="Box Blur">Box Blur</option>
+      <option value="Sobel X">Sobel X (Edges)</option>
+      <option value="Sobel Y">Sobel Y (Edges)</option>
+      <option value="Emboss">Emboss</option>
+      <option value="Custom">Custom</option>
+    </select>
+
+    <div class="kernel-label">Kernel:</div>
+    <div class="kernel-grid">
+      <input type="number" step="0.1" value="0" aria-label="Kernel value 1" />
+      <input type="number" step="0.1" value="0" aria-label="Kernel value 2" />
+      <input type="number" step="0.1" value="0" aria-label="Kernel value 3" />
+      <input type="number" step="0.1" value="0" aria-label="Kernel value 4" />
+      <input type="number" step="0.1" value="1" aria-label="Kernel value 5" />
+      <input type="number" step="0.1" value="0" aria-label="Kernel value 6" />
+      <input type="number" step="0.1" value="0" aria-label="Kernel value 7" />
+      <input type="number" step="0.1" value="0" aria-label="Kernel value 8" />
+      <input type="number" step="0.1" value="0" aria-label="Kernel value 9" />
+    </div>
+  </div>
+
+  <canvas class="canvas"></canvas>
+  <div class="status">{resolvedSrc ? "Loading image..." : "Error: No image source provided."}</div>
+
+  <!-- Keep hidden source image -->
+  <img class="source-img" alt="Source for convolution" crossorigin="anonymous" style="display:none;" />
+
+  {caption && <div class="caption">{caption}</div>}
+</kernel-playground>
+
+<script>
+  class KernelPlayground extends HTMLElement {
+    static PRESETS = {
+      Identity: [0, 0, 0, 0, 1, 0, 0, 0, 0],
+      Sharpen: [0, -1, 0, -1, 5, -1, 0, -1, 0],
+      "Box Blur": [1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9],
+      "Sobel X": [-1, 0, 1, -2, 0, 2, -1, 0, 1],
+      "Sobel Y": [-1, -2, -1, 0, 0, 0, 1, 2, 1],
+      Emboss: [-2, -1, 0, -1, 1, 1, 0, 1, 2],
+    };
+
+    connectedCallback() {
+      this.img = this.querySelector(".source-img");
+      this.canvas = this.querySelector(".canvas");
+      this.ctx = this.canvas.getContext("2d");
+      this.status = this.querySelector(".status");
+      this.presetSelect = this.querySelector(".preset-select");
+      this.kernelInputs = this.querySelectorAll(".kernel-grid input");
+      this.originalImageData = null;
+
+      const imageSrc = this.dataset.src;
+      if (!imageSrc) {
+        this.handleImageError("Error: No image source (data-src) provided.");
+        return;
+      }
+
+      this.img.onload = () => this.handleImageLoad();
+      this.img.onerror = () => this.handleImageError("Error: Could not load image.");
+
+      this.presetSelect.addEventListener("change", () => this.handlePresetChange());
+      this.kernelInputs.forEach((input) => {
+        input.addEventListener("input", () => this.handleKernelInput());
+      });
+
+      this.img.src = imageSrc;
+    }
+
+    handleImageLoad() {
+      this.status.style.display = "none";
+      this.canvas.width = this.img.naturalWidth;
+      this.canvas.height = this.img.naturalHeight;
+
+      try {
+        this.ctx.drawImage(this.img, 0, 0);
+        this.originalImageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+      } catch (e) {
+        console.error("Canvas error:", e);
+        this.handleImageError("Error: Cannot process image (CORS issue).");
+        return;
+      }
+      this.handlePresetChange();
+    }
+
+    handleImageError(message = "Error: Unknown image error.") {
+      this.status.textContent = message;
+      this.status.classList.add("error");
+    }
+
+    handlePresetChange() {
+      const presetName = this.presetSelect.value;
+      const kernel = KernelPlayground.PRESETS[presetName];
+      if (kernel) {
+        this.kernelInputs.forEach((input, i) => {
+          input.value = parseFloat(kernel[i].toFixed(3));
+        });
+      }
+      this.applyConvolution();
+    }
+
+    handleKernelInput() {
+      this.presetSelect.value = "Custom";
+      this.applyConvolution();
+    }
+
+    applyConvolution() {
+      if (!this.originalImageData) return;
+
+      const src = this.originalImageData.data;
+      const w = this.originalImageData.width;
+      const h = this.originalImageData.height;
+
+      const output = this.ctx.createImageData(w, h);
+      const dst = output.data;
+
+      const k = Array.from(this.kernelInputs, (input) => parseFloat(input.value) || 0);
+
+      for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
+          let r = 0,
+            g = 0,
+            b = 0;
+          for (let ky = -1; ky <= 1; ky++) {
+            for (let kx = -1; kx <= 1; kx++) {
+              const kernel_idx = (ky + 1) * 3 + (kx + 1);
+              const kval = k[kernel_idx];
+              const px_idx = ((y + ky) * w + (x + kx)) * 4;
+              r += src[px_idx] * kval;
+              g += src[px_idx + 1] * kval;
+              b += src[px_idx + 2] * kval;
+            }
+          }
+          const dst_idx = (y * w + x) * 4;
+          dst[dst_idx] = r;
+          dst[dst_idx + 1] = g;
+          dst[dst_idx + 2] = b;
+          dst[dst_idx + 3] = 255;
+        }
+      }
+      this.ctx.putImageData(output, 0, 0);
+    }
+  }
+
+  // Define once (prevents errors on HMR/multiple uses)
+  if (!customElements.get("kernel-playground")) {
+    customElements.define("kernel-playground", KernelPlayground);
+  }
+</script>
