@@ -12,7 +12,7 @@ import { CollectionType } from "../../../types";
 type Post = CollectionEntry<CollectionType.Blog>;
 export async function getStaticPaths() {
   const posts = await getCollection(CollectionType.Blog);
-  return posts.map((post:any) => {
+  return posts.map((post: any) => {
     const [lang, ...slug] = post.slug.split("/");
     return {
       params: { lang, slug: slug.join("/") || undefined },
@@ -45,33 +45,29 @@ const coverSrc = isCoverObject ? `${cover.src}` : `${cover}`;
       <h1 id="header" class="text-5xl font-title font-black text-white">{post.data.title}</h1>
       <div class="flex items-center justify-center gap-2">
         <DateTag date={post.data.date} />
-        {post.data.tags?.map((tag:string) => <Tag tag={tag} />)}
+        {post.data.tags?.map((tag: string) => <Tag tag={tag} />)}
       </div>
       <p class="text-lg text-white max-w-2xl">{post.data.description}</p>
     </div>
 
     <!-- COVER CAN GROW MORE ON BIG SCREENS -->
-    {coverSrc && (
-      <img
-        src={coverSrc}
-        alt={post.data.title}
-        class="w-full max-w-5xl mx-auto rounded-lg"
-      />
-    )}
+    {coverSrc && <img src={coverSrc} alt={post.data.title} class="w-full max-w-5xl mx-auto rounded-lg" />}
   </div>
 
   <!-- CONTENT: WIDER, WITH TAILWIND TYPOGRAPHY FOR NICE MEASURE -->
   <article
-  class="relative mx-auto w-full px-4 sm:px-6 lg:px-8 text-xl leading-relaxed text-white bg-neutral-900/90 rounded-lg max-w-4xl xl:max-w-5xl 2xl:max-w-6xl"
->
-  <div class="prose prose-invert prose-lg xl:prose-xl max-w-none
+    class="relative mx-auto w-full px-4 sm:px-6 lg:px-8 text-xl leading-relaxed text-white bg-neutral-900/90 rounded-lg max-w-4xl xl:max-w-5xl 2xl:max-w-6xl"
+  >
+    <div
+      class="prose prose-invert prose-lg xl:prose-xl max-w-none
               prose-p:text-justify prose-li:text-justify prose-blockquote:text-justify [&_p]:my-4
               [&_p:first-child]:mt-0
               [&_p:last-child]:mb-0
-              [hyphens:auto]">
-    <PostContent post={post} />
-  </div>
-</article>
+              [hyphens:auto]"
+    >
+      <PostContent post={post} />
+    </div>
+  </article>
 
   <Slogan atBottom />
 </Layout>

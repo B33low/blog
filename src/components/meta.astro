@@ -40,6 +40,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   gtag("config", GOOGLE_GTAG);
 </script>
 
+<script
+  defer
+  src="https://cdn.jsdelivr.net/npm/mermaid@10.9.5/dist/mermaid.min.js"
+  onload="mermaid.initialize(window.mermaidConfig); mermaid.run({ querySelector: '.mermaid' });"></script>
 <!-- Primary Meta Tags -->
 <title>{title}</title>
 <meta name="title" content={title} />
