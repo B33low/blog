@@ -24,22 +24,16 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <link rel="canonical" href={canonicalURL} />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
 <!-- Google tag (gtag.js) -->
-<script async is:inline src=`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_GTAG}`></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1YFXVMW8N"></script>
 <script>
-  import { GOOGLE_GTAG } from "../config";
-
-  // @ts-ignore
   window.dataLayer = window.dataLayer || [];
   function gtag() {
-    // @ts-ignore
     dataLayer.push(arguments);
   }
-  // @ts-ignore
   gtag("js", new Date());
-  // @ts-ignore
-  gtag("config", GOOGLE_GTAG);
-</script>
 
+  gtag("config", "G-P1YFXVMW8N");
+</script>
 <script
   defer
   src="https://cdn.jsdelivr.net/npm/mermaid@10.9.5/dist/mermaid.min.js"
