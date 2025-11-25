@@ -25,7 +25,7 @@ To anyone even *thinking* about doing this **don’t**. Maybe my jumper wires we
 
 ### Interference Between CS and MOSI
 
-Early in my testing, I noticed that when the wires for Chip Select (CS) and Master Out Slave In (MOSI) were too close together less than 2 cm interference occurred. This completely broke communication with the sensor.
+Early in my testing, I noticed that when the wires for Chip Select (CS) and Master Out Slave In (MOSI) were too close together (less than 2 cm) interference occurred. This would completely broke communication with the sensor.
 
 What made it worse was how unclear the issue was. When I tried reading the WHO_AM_I registers, I’d just get 0x00 or 0xFF every time. No way to tell whether the sensor itself was dead or just miswired.
 
@@ -49,14 +49,10 @@ After this whole ordeal, I started thinking seriously about designing a dedicate
 
 That said, I still need to finish writing my drivers for each sensor to finalize the wiring setup before building anything permanent.
 
-## Diagrams & Photos
+## Pictures
 
 To help visualize the setup and changes I made, here are a few images:
 
-![SPI breadboard wiring diagram](../../images/breadboard-sensor.webp)
-
-*Diagram showing the original setup and the interference issue.*
+![Original breadboard setup] (../../images/breadboard-sensor.webp)
 
 ![Direct sensor connection](../../images/direct-connection-sensor.webp)
-
-*Photo of the setup after switching to direct wiring.*
