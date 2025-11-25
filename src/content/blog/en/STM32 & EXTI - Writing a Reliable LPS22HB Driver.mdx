@@ -20,13 +20,11 @@ In this article, I'll share my experience, tips, and provide a practical example
 
 Using interrupts (EXTI) is crucial to reducing processor load and improving system responsiveness. Here's how I configured the GPIO pins in EXTI mode using STM32CubeMX:
 
-![CubeMX_EXTI](../../images/CubeMX_EXTI.webp)
+![Port configuration in CubeMX](../../images/CubeMX_EXTI.webp)
 
-*My port configuration in CubeMX.*
+Once the GPIO pin are set inside CubeMX as interrupt inputs, this is not ready yet. We need to configure the [NVIC](https://www.st.com/resource/en/product_training/STM32G4-System-Nested_Vectored_Interrupt_Control_NVIC.pdf) which is the interrupt orchestrator in stm32 to allow our newly wired interrupt to actually be enabled:
 
-![NVIC](../../images/CubeMX_EXTI_NVIC.webp)
-
-*NVIC configuration.*
+![NVIC configuration](../../images/CubeMX_EXTI_NVIC.webp)
 
 ## Why Use EXTI?
 
@@ -68,9 +66,7 @@ To test and validate my implementation, I created a simple Python script to read
 
 Here’s a glimpse of the resulting graphical data:
 
-![Direct sensor connections](../../images/LPS22HB_Measure.webp)
-
-*Example measurement curves.*
+![Example of the output of the sensor](../../images/LPS22HB_Measure.webp)
 
 Thanks to the EXTI interrupt, these curves demonstrate excellent stability and responsiveness to actual physical variations in measured parameters.
 
