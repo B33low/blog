@@ -30,32 +30,50 @@ const { tags, targetId } = Astro.props;
   }
 </div>
 
-<script data-astro-rerun>
-  document.querySelectorAll<HTMLDivElement>("[data-filter-tabs]").forEach((tabGroup) => {
-    const targetId = tabGroup.dataset.target!;
-    const target = document.getElementById(targetId);
-    if (!target) return;
+<script is:inline data-astro-rerun>
+  (() => {
+    document.querySelectorAll("[data-filter-tabs]").forEach((tabGroup) => {
+      if (!(tabGroup instanceof HTMLElement)) return;
 
-    const buttons = Array.from(tabGroup.querySelectorAll<HTMLButtonElement>(".filter-pill"));
-    const items = Array.from(target.children) as HTMLElement[];
+      const targetId = tabGroup.dataset.target;
+      if (!targetId) return;
 
-    const setActive = (filter: string) => {
-      items.forEach((item) => {
-        const itemTags = (item.dataset.tags ?? "").split(",");
-        const visible = filter === "all" || itemTags.includes(filter);
-        item.style.display = visible ? "" : "none";
-      });
+      const target = document.getElementById(targetId);
+      if (!target) return;
+
+      const buttons = Array.from(tabGroup.querySelectorAll(".filter-pill"));
+
+      const items = Array.from(target.children);
+
+      const setActive = (filter) => {
+        items.forEach((item) => {
+          if (!(item instanceof HTMLElement)) return;
+
+          const itemTags = (item.dataset.tags ?? "").split(",");
+          const visible = filter === "all" || itemTags.includes(filter);
+
+          item.style.display = visible ? "" : "none";
+        });
+
+        buttons.forEach((btn) => {
+          if (!(btn instanceof HTMLButtonElement)) return;
+
+          const isActive = btn.dataset.filter === filter;
+
+          btn.classList.toggle("bg-white/10", isActive);
+          btn.classList.toggle("text-white", isActive);
+          btn.classList.toggle("text-slate-300", !isActive);
+        });
+      };
 
       buttons.forEach((btn) => {
-        const isActive = btn.dataset.filter === filter;
-        btn.classList.toggle("bg-white/10", isActive);
-        btn.classList.toggle("text-white", isActive);
-        btn.classList.toggle("text-slate-300", !isActive);
-      });
-    };
+        if (!(btn instanceof HTMLButtonElement)) return;
 
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", () => setActive(btn.dataset.filter!));
+        btn.addEventListener("click", () => {
+          const filter = btn.dataset.filter;
+          if (filter) setActive(filter);
+        });
+      });
     });
-  });
+  })();
 </script>
