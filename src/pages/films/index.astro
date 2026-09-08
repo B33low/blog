@@ -1,0 +1,39 @@
+---
+import Layout from "../../components/layout.astro";
+import VideoCard from "../../components/media/video-card.astro";
+import FilterTabs from "../../components/media/filter-tabs.astro";
+import { films, filmTags } from "../../helpers";
+
+const [latest, ...rest] = films;
+---
+
+<Layout title="Films" description="Video edits from the water, the mountains, and everywhere in between.">
+  <div class="max-w-screen-xl mx-auto px-4 sm:px-8 pt-16 pb-4">
+    <p class="text-amber-400/90 text-xs uppercase tracking-[0.2em] mb-3">Films</p>
+    <h1 class="font-title font-black text-white text-4xl sm:text-5xl mb-4">Edits from the water</h1>
+    <p class="text-slate-400 max-w-2xl">
+      Freediving, kitesurfing and the occasional road trip — encoded carefully and hosted directly, with
+      camera-quality originals available when you want them.
+    </p>
+  </div>
+
+  {
+    latest && (
+      <div class="max-w-screen-xl mx-auto px-4 sm:px-8 py-8">
+        <VideoCard film={latest} featured />
+      </div>
+    )
+  }
+
+  <div class="max-w-screen-xl mx-auto px-4 sm:px-8 pb-24">
+    {filmTags.length > 0 && <FilterTabs tags={filmTags} targetId="films-grid" />}
+    <div id="films-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {rest.map((film) => <VideoCard film={film} />)}
+    </div>
+    {films.length === 0 && (
+      <p class="text-slate-500">
+        No films published yet — add an entry to <code>src/content/films</code> to get started.
+      </p>
+    )}
+  </div>
+</Layout>

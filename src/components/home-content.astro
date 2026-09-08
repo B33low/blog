@@ -1,0 +1,56 @@
+---
+import Hero from "./media/hero.astro";
+import SectionHeader from "./media/section-header.astro";
+import VideoCard from "./media/video-card.astro";
+import PhotoTeaserGrid from "./media/photo-teaser-grid.astro";
+import Lightbox from "./media/lightbox.astro";
+import PostListItem from "./post/post-list-item.astro";
+import { films, photos, getPostsByLang } from "../helpers";
+
+type Props = {
+  lang?: string;
+};
+
+const { lang } = Astro.props;
+const latestFilm = films.find((film) => !film.data.hideOnHomePage);
+const teaserPhotos = photos.filter((photo) => !photo.data.hideOnHomePage).slice(0, 4);
+const latestPosts = getPostsByLang(lang)
+  .filter((post: any) => post.data.hideOnHomePage !== true)
+  .slice(0, 3);
+const journalHref = lang ? `/${lang}/posts` : "/en/posts";
+---
+
+<Hero />
+
+{
+  latestFilm && (
+    <section class="max-w-screen-xl mx-auto px-4 sm:px-8 py-16">
+      <SectionHeader index="01" title="Featured Film" viewAllHref="/films" />
+      <VideoCard film={latestFilm} featured />
+    </section>
+  )
+}
+
+{
+  teaserPhotos.length > 0 && (
+    <section class="max-w-screen-xl mx-auto px-4 sm:px-8 py-8">
+      <SectionHeader index="02" title="Latest Photography" viewAllHref="/photography" />
+      <PhotoTeaserGrid photos={teaserPhotos} />
+    </section>
+  )
+}
+
+{
+  latestPosts.length > 0 && (
+    <section class="max-w-screen-xl mx-auto px-4 sm:px-8 py-16">
+      <SectionHeader index="03" title="Latest Journal" viewAllHref={journalHref} />
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {latestPosts.map((post: any) => (
+          <PostListItem post={post} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+<Lightbox />

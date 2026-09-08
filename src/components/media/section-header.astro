@@ -1,0 +1,24 @@
+---
+type Props = {
+  index: string;
+  title: string;
+  viewAllHref?: string;
+};
+
+const { index, title, viewAllHref } = Astro.props;
+---
+
+<div class="flex items-end justify-between mb-6">
+  <div class="flex items-center gap-4">
+    <span class="text-amber-400/80 text-sm font-mono">{index}</span>
+    <span class="w-8 h-px bg-white/20"></span>
+    <h2 class="font-title font-black text-white text-2xl sm:text-3xl">{title}</h2>
+  </div>
+  {
+    viewAllHref && (
+      <a href={viewAllHref} class="text-sm text-slate-400 hover:text-white whitespace-nowrap">
+        View all →
+      </a>
+    )
+  }
+</div>

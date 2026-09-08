@@ -1,0 +1,95 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import { CollectionType } from "../../types";
+
+type Props = {
+  photos: CollectionEntry<CollectionType.Photos>[];
+};
+
+// Renders up to 4 photos in the asymmetric layout: one tall photo on the left,
+// two stacked in the middle, one tall on the right. Falls back gracefully with fewer.
+const { photos } = Astro.props;
+const [a, b, c, d] = photos;
+
+const cardProps = (photo: CollectionEntry<CollectionType.Photos>) => {
+  const image = photo.data.image;
+  const thumbnail = photo.data.thumbnail ?? image;
+  const isImageObject = typeof image === "object" && (image as any)?.src;
+  const isThumbnailObject = typeof thumbnail === "object" && (thumbnail as any)?.src;
+  return {
+    thumbnail,
+    isThumbnailObject,
+    fullSrc: isImageObject ? (image as any).src : (image as string),
+    meta: [photo.data.location, photo.data.date].filter(Boolean).join(" · "),
+  };
+};
+---
+
+{
+  a && (
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <a
+        href={`/photography/${a.slug}`}
+        data-lightbox-trigger
+        data-full-src={cardProps(a).fullSrc}
+        data-title={a.data.title}
+        data-meta={cardProps(a).meta}
+        class="group relative md:col-span-2 md:row-span-2 overflow-hidden rounded-lg bg-zinc-800 aspect-[4/5] md:aspect-auto"
+      >
+        {cardProps(a).isThumbnailObject ? (
+          <Image src={cardProps(a).thumbnail as any} alt={a.data.title} loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        ) : (
+          <img src={cardProps(a).thumbnail as string} alt={a.data.title} loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        )}
+        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+          <p class="text-white font-semibold">{a.data.title}</p>
+          <p class="text-slate-300 text-xs">{cardProps(a).meta}</p>
+        </div>
+      </a>
+
+      <div class="md:col-span-1 grid grid-rows-2 gap-4">
+        {[b, c].filter(Boolean).map((photo: any) => (
+          <a
+            href={`/photography/${photo.slug}`}
+            data-lightbox-trigger
+            data-full-src={cardProps(photo).fullSrc}
+            data-title={photo.data.title}
+            data-meta={cardProps(photo).meta}
+            class="group relative overflow-hidden rounded-lg bg-zinc-800 aspect-square md:aspect-auto"
+          >
+            {cardProps(photo).isThumbnailObject ? (
+              <Image src={cardProps(photo).thumbnail as any} alt={photo.data.title} loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            ) : (
+              <img src={cardProps(photo).thumbnail as string} alt={photo.data.title} loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            )}
+            <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+              <p class="text-white text-sm font-semibold">{photo.data.title}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      {d && (
+        <a
+          href={`/photography/${d.slug}`}
+          data-lightbox-trigger
+          data-full-src={cardProps(d).fullSrc}
+          data-title={d.data.title}
+          data-meta={cardProps(d).meta}
+          class="group relative md:col-span-1 md:row-span-2 overflow-hidden rounded-lg bg-zinc-800 aspect-[4/5] md:aspect-auto"
+        >
+          {cardProps(d).isThumbnailObject ? (
+            <Image src={cardProps(d).thumbnail as any} alt={d.data.title} loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          ) : (
+            <img src={cardProps(d).thumbnail as string} alt={d.data.title} loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          )}
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+            <p class="text-white font-semibold">{d.data.title}</p>
+            <p class="text-slate-300 text-xs">{cardProps(d).meta}</p>
+          </div>
+        </a>
+      )}
+    </div>
+  )
+}

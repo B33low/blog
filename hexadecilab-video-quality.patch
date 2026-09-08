@@ -1,0 +1,496 @@
+diff --git a/MEDIA_GUIDE.md b/MEDIA_GUIDE.md
+index bab42e8..eb1933e 100644
+--- a/MEDIA_GUIDE.md
++++ b/MEDIA_GUIDE.md
+@@ -1,31 +1,17 @@
+ # Adding Films & Photos
+ 
+-Two new content collections sit alongside `blog` and `projects`: `films` and `photos`.
+-They're not split into `en`/`fr` folders — captions are short and the media speaks for itself.
++The `films` and `photos` collections sit alongside the technical blog. Media is hosted outside GitHub Pages, ideally on Cloudflare R2 behind `media.hexadecilab.com`.
+ 
+-## Adding a photo
++## Video quality policy
+ 
+-Create `src/content/photos/my-photo.mdx`:
++Films intentionally have two public playback files:
+ 
+-```md
+----
+-title: "Rising for air"
+-description: "A freediver ascending toward the surface."
+-date: 2026-08-02
+-location: "Mediterranean Sea"
+-tags:
+-  - Freediving
+-  - Underwater
+-image: "../images/my-photo.jpg"        # local file → Astro optimizes it
+-# image: "https://media.hexadecilab.com/photos/my-photo.jpg"   # or point straight at R2
+-featured: true    # show on the homepage teaser grid
+-draft: false
+----
+-```
++- **Web HQ** — the default. A high-quality 1440p/4K web encode that is reasonable to stream.
++- **Original 4K** — optional HEVC camera-quality file (for example a DJI Action 6 master around 50 Mb/s). It is never preloaded. The visitor must explicitly opt in after a data-usage warning.
++
++At 50 Mb/s the original consumes roughly **375 MB/minute**, so do not use it as the default `<video>` source.
+ 
+-Local images placed in `src/content/images/` get resized/converted to webp automatically by
+-`astro:assets`. If you'd rather serve the untouched original (no re-compression at all), skip the
+-local copy and put the R2 URL directly in `image:`.
++The private archival master can live in a separate non-public R2 bucket. `videoOriginalUrl` may point at a public remux/copy of the same HEVC bitstream (`-c copy`) if you want visitors to have access to the camera-quality version.
+ 
+ ## Adding a film
+ 
+@@ -38,35 +24,77 @@ description: "A few days on the road through mountain passes."
+ date: 2026-08-15
+ location: "Alps, FR · IT · CH"
+ duration: "06:24"
+-gear: "DJI Action 6"
++gear: "DJI Osmo Action 6"
+ tags:
+-  - Kitesurf
+-  - Watersport
+-cover: "../images/my-film-cover.jpg"    # poster/thumbnail — can be a still frame
+-videoUrl: "https://media.hexadecilab.com/films/my-film.mp4"
++  - Roadtrip
++  - Mountains
++cover: "https://media.hexadecilab.com/videos/alps-roadtrip/poster.jpg"
++
++# Loaded by default. Keep this high quality, but reasonable for normal streaming.
++videoWebUrl: "https://media.hexadecilab.com/videos/alps-roadtrip/fallback-1440p.mp4"
++
++# Optional. This URL is not requested until the visitor confirms the warning.
++videoOriginalUrl: "https://media.hexadecilab.com/videos/alps-roadtrip/master-hevc.mp4"
++originalBitrateMbps: 50
++originalCodec: "HEVC / H.265"
++
++videoFormat: landscape
+ featured: true
+ draft: false
+ ---
+ 
+-Optional longer write-up / behind-the-scenes notes go here, rendered as the film's article body.
++Optional write-up / behind-the-scenes notes go here.
++```
++
++`videoUrl` is still accepted for old entries and behaves like `videoWebUrl`, so existing content does not have to be migrated immediately.
++
++### Recommended R2 layout
++
++```text
++hexadecilab-media/
++└── videos/
++    └── alps-roadtrip/
++        ├── fallback-1440p.mp4   # default Web HQ
++        ├── master-hevc.mp4      # public original, optional
++        ├── poster.jpg
++        └── metadata.json
++
++hexadecilab-originals/           # private bucket, optional
++└── videos/
++    └── alps-roadtrip/
++        └── master.mp4           # immutable archive
+ ```
+ 
+-`videoUrl` is played back with a plain `<video>` tag (see `src/components/media/video-player.astro`)
+-— no YouTube/Vimeo re-encode, so whatever you upload is exactly what visitors get.
+-
+-## Media hosting workflow (R2)
+-
+-1. Shoot, cull/organize privately with something like **Immich** (self-hosted, great for reviewing
+-   raw footage — not meant to be your public gallery though).
+-2. Export your final cuts/edits at full quality.
+-3. Upload the finished files to a **Cloudflare R2** bucket. R2 has no egress fees, which matters
+-   once people start actually watching/downloading video.
+-4. Put a custom domain in front of the bucket (e.g. `media.hexadecilab.com`) via a Cloudflare
+-   Worker or R2's built-in custom domain support, and use that as `MEDIA_BASE_URL` in
+-   `src/config.ts` / in each entry's `videoUrl` / `image`.
+-5. If you want adaptive-quality streaming instead of a single flat file, look at **PeerTube** —
+-   it supports S3-compatible storage (R2) natively and can sit in front of the bucket, and you'd
+-   swap the `<video>` tag for an embed of the PeerTube player.
+-
+-This keeps the "manager" (Immich for private review, optionally PeerTube for public streaming)
+-separate from the blog itself — the Astro site just needs a URL.
++The player preserves the current playback position when switching quality. If the browser cannot decode the HEVC original, it automatically returns to Web HQ.
++
++## Adding a photo
++
++Create `src/content/photos/my-photo.mdx`:
++
++```md
++---
++title: "Rising for air"
++description: "A freediver ascending toward the surface."
++date: 2026-08-02
++location: "Mediterranean Sea"
++tags:
++  - Freediving
++  - Underwater
++image: "https://media.hexadecilab.com/photos/my-photo.avif"
++featured: true
++draft: false
++---
++```
++
++Local images can still be placed under `src/content/images/` and handled by `astro:assets`. For externally prepared AVIF/JPEG assets, point `image` directly at R2.
++
++## Media hosting workflow
++
++1. Export the final cut locally.
++2. Keep the immutable original privately if desired.
++3. Generate a Web HQ version (for difficult underwater/action footage, a quality-targeted encode such as x264 CRF 16 is a good starting point rather than a very low fixed bitrate).
++4. Produce a web-friendly HEVC remux/copy for the optional original (`-c:v copy`, normally with `hvc1` and `faststart`) without re-encoding the video stream.
++5. Generate a poster image.
++6. Upload the public derivatives to `hexadecilab-media` and reference them in the film frontmatter.
++
++The Astro site never transcodes video. It only selects which R2 object the browser should play.
+diff --git a/src/components/media/video-player.astro b/src/components/media/video-player.astro
+index 57b18fe..5530fd5 100644
+--- a/src/components/media/video-player.astro
++++ b/src/components/media/video-player.astro
+@@ -10,10 +10,13 @@ const { film } = Astro.props;
+ 
+ const cover = film.data.cover;
+ const isCoverObject = typeof cover === "object" && (cover as any)?.src;
+-
+ const posterSrc = isCoverObject ? (cover as any).src : (cover as string);
+ 
+ const videoFormat = film.data.videoFormat ?? "landscape";
++const webUrl = (film.data.videoWebUrl ?? film.data.videoUrl)!;
++const originalUrl = film.data.videoOriginalUrl;
++const originalBitrateMbps = film.data.originalBitrateMbps;
++const originalCodec = film.data.originalCodec ?? "HEVC / H.265";
+ 
+ const formatClasses = {
+   landscape: "w-full",
+@@ -21,18 +24,211 @@ const formatClasses = {
+   square: "w-full max-w-[720px] max-h-[85vh]",
+   auto: "w-auto max-w-full max-h-[85vh]",
+ };
++
++function durationToSeconds(value?: string) {
++  if (!value) return undefined;
++  const parts = value.split(":").map(Number);
++  if (parts.some(Number.isNaN)) return undefined;
++  if (parts.length === 2) return parts[0] * 60 + parts[1];
++  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
++  return undefined;
++}
++
++function formatDataSize(bytes: number) {
++  const gb = bytes / 1_000_000_000;
++  if (gb >= 1) return `${gb.toFixed(gb >= 10 ? 0 : 1)} GB`;
++  return `${Math.round(bytes / 1_000_000)} MB`;
++}
++
++const durationSeconds = durationToSeconds(film.data.duration);
++const originalEstimatedBytes =
++  originalBitrateMbps && durationSeconds
++    ? (originalBitrateMbps * 1_000_000 * durationSeconds) / 8
++    : undefined;
++const originalEstimatedSize = originalEstimatedBytes ? formatDataSize(originalEstimatedBytes) : undefined;
++const perMinuteData = originalBitrateMbps
++  ? formatDataSize((originalBitrateMbps * 1_000_000 * 60) / 8)
++  : undefined;
+ ---
+ 
+-<div class="flex justify-center w-full">
+-  <video
+-    controls
+-    preload="metadata"
+-    poster={posterSrc}
+-    class:list={["block h-auto mx-auto rounded-xl bg-black object-contain", formatClasses[videoFormat]]}
+-  >
+-    <source src={film.data.videoUrl} />
+-
+-    Your browser doesn't support embedded video.
+-    <a href={film.data.videoUrl}>Download the file</a>
+-  </video>
++<div class="w-full" data-quality-player data-web-url={webUrl} data-original-url={originalUrl ?? ""}>
++  <div class="flex justify-center w-full">
++    <video
++      controls
++      playsinline
++      preload="metadata"
++      poster={posterSrc}
++      class:list={["block h-auto mx-auto rounded-xl bg-black object-contain", formatClasses[videoFormat]]}
++      data-video
++    >
++      <source src={webUrl} type="video/mp4" />
++
++      Your browser doesn't support embedded video.
++      <a href={webUrl}>Open the web version</a>
++    </video>
++  </div>
++
++  {
++    originalUrl && (
++      <div class="mt-4 rounded-xl border border-white/10 bg-zinc-900/70 p-3 sm:p-4 backdrop-blur-sm">
++        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
++          <div class="min-w-0">
++            <p class="text-sm font-semibold text-white" data-quality-title>Web HQ</p>
++            <p class="mt-0.5 text-xs leading-relaxed text-slate-400" data-quality-description>
++              Optimized for streaming. The original master is only loaded if you explicitly select it.
++            </p>
++          </div>
++
++          <div class="inline-flex w-fit rounded-lg bg-black/30 p-1" role="group" aria-label="Video quality">
++            <button
++              type="button"
++              class="rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-zinc-950 transition-colors"
++              data-quality="web"
++              aria-pressed="true"
++            >
++              Web HQ
++            </button>
++            <button
++              type="button"
++              class="rounded-md px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:text-white"
++              data-quality="original"
++              aria-pressed="false"
++            >
++              Original 4K
++            </button>
++          </div>
++        </div>
++
++        <div class="mt-3 hidden rounded-lg border border-amber-400/25 bg-amber-400/10 p-3" data-original-warning>
++          <p class="text-sm font-semibold text-amber-200">High data usage</p>
++          <p class="mt-1 text-xs leading-relaxed text-amber-100/75">
++            This is the {originalCodec} camera-quality version
++            {originalBitrateMbps ? ` at about ${originalBitrateMbps} Mb/s` : ""}.
++            {perMinuteData ? ` Expect roughly ${perMinuteData} per minute` : ""}
++            {originalEstimatedSize ? ` (${originalEstimatedSize} for this film)` : ""}.
++            It can use a significant amount of mobile data and needs a fast connection.
++          </p>
++          <div class="mt-3 flex flex-wrap gap-2">
++            <button
++              type="button"
++              class="rounded-md bg-amber-300 px-3 py-1.5 text-xs font-bold text-zinc-950 hover:bg-amber-200"
++              data-confirm-original
++            >
++              Play original anyway
++            </button>
++            <button
++              type="button"
++              class="rounded-md border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/5"
++              data-cancel-original
++            >
++              Keep Web HQ
++            </button>
++          </div>
++        </div>
++
++        <p class="mt-2 hidden text-xs text-rose-300" data-quality-error>
++          This browser could not play the original HEVC file. Switched back to Web HQ.
++        </p>
++      </div>
++    )
++  }
+ </div>
++
++<script>
++  function setupQualityPlayers() {
++    document.querySelectorAll<HTMLElement>("[data-quality-player]").forEach((root) => {
++      if (root.dataset.ready === "true") return;
++      root.dataset.ready = "true";
++
++      const video = root.querySelector<HTMLVideoElement>("[data-video]");
++      const webButton = root.querySelector<HTMLButtonElement>('[data-quality="web"]');
++      const originalButton = root.querySelector<HTMLButtonElement>('[data-quality="original"]');
++      const warning = root.querySelector<HTMLElement>("[data-original-warning]");
++      const confirmOriginal = root.querySelector<HTMLButtonElement>("[data-confirm-original]");
++      const cancelOriginal = root.querySelector<HTMLButtonElement>("[data-cancel-original]");
++      const title = root.querySelector<HTMLElement>("[data-quality-title]");
++      const description = root.querySelector<HTMLElement>("[data-quality-description]");
++      const error = root.querySelector<HTMLElement>("[data-quality-error]");
++
++      const webUrl = root.dataset.webUrl;
++      const originalUrl = root.dataset.originalUrl;
++      if (!video || !webUrl || !originalUrl || !webButton || !originalButton) return;
++
++      let active: "web" | "original" = "web";
++
++      const updateButtons = () => {
++        const originalActive = active === "original";
++        webButton.setAttribute("aria-pressed", String(!originalActive));
++        originalButton.setAttribute("aria-pressed", String(originalActive));
++
++        webButton.classList.toggle("bg-white", !originalActive);
++        webButton.classList.toggle("text-zinc-950", !originalActive);
++        webButton.classList.toggle("text-slate-300", originalActive);
++        originalButton.classList.toggle("bg-white", originalActive);
++        originalButton.classList.toggle("text-zinc-950", originalActive);
++        originalButton.classList.toggle("text-slate-300", !originalActive);
++
++        if (title) title.textContent = originalActive ? "Original 4K" : "Web HQ";
++        if (description) {
++          description.textContent = originalActive
++            ? "Camera-quality master selected. High bandwidth mode is active."
++            : "Optimized for streaming. The original master is only loaded if you explicitly select it.";
++        }
++      };
++
++      const switchSource = (mode: "web" | "original") => {
++        const nextUrl = mode === "original" ? originalUrl : webUrl;
++        if (!nextUrl || active === mode) return;
++
++        const currentTime = video.currentTime || 0;
++        const shouldResume = !video.paused;
++        error?.classList.add("hidden");
++
++        active = mode;
++        updateButtons();
++        video.src = nextUrl;
++        video.load();
++
++        video.addEventListener(
++          "loadedmetadata",
++          () => {
++            if (currentTime > 0 && Number.isFinite(video.duration)) {
++              video.currentTime = Math.min(currentTime, Math.max(0, video.duration - 0.25));
++            }
++            if (shouldResume) video.play().catch(() => undefined);
++          },
++          { once: true },
++        );
++      };
++
++      originalButton.addEventListener("click", () => {
++        if (active === "original") return;
++        warning?.classList.remove("hidden");
++      });
++
++      confirmOriginal?.addEventListener("click", () => {
++        warning?.classList.add("hidden");
++        switchSource("original");
++      });
++
++      cancelOriginal?.addEventListener("click", () => warning?.classList.add("hidden"));
++
++      webButton.addEventListener("click", () => {
++        warning?.classList.add("hidden");
++        switchSource("web");
++      });
++
++      video.addEventListener("error", () => {
++        if (active !== "original") return;
++        active = "web";
++        updateButtons();
++        error?.classList.remove("hidden");
++        video.src = webUrl;
++        video.load();
++      });
++    });
++  }
++
++  setupQualityPlayers();
++  document.addEventListener("astro:page-load", setupQualityPlayers);
++</script>
+diff --git a/src/config.ts b/src/config.ts
+index 09dc0b8..60d9914 100644
+--- a/src/config.ts
++++ b/src/config.ts
+@@ -59,10 +59,10 @@ export const MENUS = [
+   },
+ ];
+ 
+-// Base URL for the R2 (or any S3-compatible) bucket serving full-quality video/photo
+-// originals. Point this at your custom domain in front of the bucket, e.g.
+-// "https://media.hexadecilab.com". Individual entries can still pass a full URL
+-// in `videoUrl` / `image` if they need to override this.
++// Base URL for the R2 (or any S3-compatible) bucket serving public media.
++// Point this at your custom domain in front of the bucket, e.g.
++// "https://media.hexadecilab.com". Film entries normally use `videoWebUrl`
++// (default playback) plus an optional `videoOriginalUrl` (explicit opt-in only).
+ // Set PUBLIC_MEDIA_BASE_URL in your .env to override for local/staging use.
+ export const MEDIA_BASE_URL = import.meta.env.PUBLIC_MEDIA_BASE_URL || "https://media.hexadecilab.com";
+ 
+diff --git a/src/content/config.ts b/src/content/config.ts
+index 8838dac..60b58ea 100644
+--- a/src/content/config.ts
++++ b/src/content/config.ts
+@@ -50,7 +50,16 @@ const films = defineCollection({
+ 
+       cover: image().or(z.string()),
+ 
+-      videoUrl: z.string(),
++      // Legacy single-file field. Keep it for existing entries; new films should use videoWebUrl.
++      videoUrl: z.string().optional(),
++
++      // Default stream-friendly encode. This is the only file loaded automatically.
++      videoWebUrl: z.string().optional(),
++
++      // Optional camera-quality HEVC master. Never preloaded: visitors must explicitly opt in.
++      videoOriginalUrl: z.string().optional(),
++      originalBitrateMbps: z.number().positive().optional(),
++      originalCodec: z.string().optional(),
+ 
+       // Format d'affichage de la vidéo
+       videoFormat: z.enum(["auto", "landscape", "portrait", "square"]).default("landscape"),
+@@ -58,6 +67,14 @@ const films = defineCollection({
+       duration: z.string().optional(),
+       location: z.string().optional(),
+       gear: z.string().optional(),
++    }).superRefine((data, ctx) => {
++      if (!data.videoWebUrl && !data.videoUrl) {
++        ctx.addIssue({
++          code: z.ZodIssueCode.custom,
++          path: ["videoWebUrl"],
++          message: "A film needs videoWebUrl (or the legacy videoUrl field).",
++        });
++      }
+     }),
+ });
+ 
+diff --git a/src/content/films/kitesurf-first-session.mdx b/src/content/films/kitesurf-first-session.mdx
+index eb145ba..2b686bf 100644
+--- a/src/content/films/kitesurf-first-session.mdx
++++ b/src/content/films/kitesurf-first-session.mdx
+@@ -1,21 +1,22 @@
+ ---
+ title: "First Kitesurf Session"
+-description: "Example entry — replace videoUrl with the R2 link to your own edit once it's cut."
++description: "Example entry using a stream-friendly default with an opt-in camera-quality original."
+ date: 2026-08-15
+ location: "Mediterranean Sea"
+ duration: "03:41"
+-gear: "GoPro Hero 13"
++gear: "DJI Osmo Action 6"
+ tags:
+   - Kitesurf
+   - Watersport
+-cover: "../images/freedive-silhouette.jpeg"
+-videoUrl: "https://media.hexadecilab.com/films/first-kitesurf-session.mp4"
++cover: "https://media.hexadecilab.com/videos/first-kitesurf-session/poster.jpg"
++videoWebUrl: "https://media.hexadecilab.com/videos/first-kitesurf-session/fallback-1440p.mp4"
++videoOriginalUrl: "https://media.hexadecilab.com/videos/first-kitesurf-session/master-hevc.mp4"
++originalBitrateMbps: 50
++originalCodec: "HEVC / H.265"
+ featured: true
+ videoFormat: portrait
+ draft: false
+ ---
+ 
+-This is a placeholder entry so the Films section has something to render. Swap `cover` for a real
+-thumbnail, upload the final export to your R2 bucket, and point `videoUrl` at its public URL (or a
+-custom domain in front of the bucket, e.g. `media.hexadecilab.com`) — the `<video>` element on the
+-detail page will play it back at full quality, no re-encoding by a third-party platform.
++The player starts with the **Web HQ** encode so opening this page does not unexpectedly consume a huge amount of data.
++Visitors who want the camera-quality version can explicitly select **Original 4K**; the site warns them about the estimated data usage before loading it.
+diff --git a/src/pages/films/index.astro b/src/pages/films/index.astro
+index 8a900f9..0b52944 100644
+--- a/src/pages/films/index.astro
++++ b/src/pages/films/index.astro
+@@ -12,8 +12,8 @@ const [latest, ...rest] = films;
+     <p class="text-amber-400/90 text-xs uppercase tracking-[0.2em] mb-3">Films</p>
+     <h1 class="font-title font-black text-white text-4xl sm:text-5xl mb-4">Edits from the water</h1>
+     <p class="text-slate-400 max-w-2xl">
+-      Freediving, kitesurfing and the occasional road trip — shot, cut and hosted here at full quality, no
+-      platform recompression.
++      Freediving, kitesurfing and the occasional road trip — encoded carefully and hosted directly, with
++      camera-quality originals available when you want them.
+     </p>
+   </div>
+ 

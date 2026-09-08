@@ -1,0 +1,49 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import Layout from "../../components/layout.astro";
+import Tag from "../../components/tag.astro";
+import { CollectionType } from "../../types";
+
+type Photo = CollectionEntry<CollectionType.Photos>;
+
+export async function getStaticPaths() {
+  const photos = await getCollection(CollectionType.Photos);
+  return photos.map((photo) => ({
+    params: { slug: photo.slug },
+    props: { photo },
+  }));
+}
+
+type Props = { photo: Photo };
+const { photo } = Astro.props;
+const { title, description, date, tags, location, image } = photo.data;
+const isImageObject = typeof image === "object" && (image as any)?.src;
+---
+
+<Layout title={title} description={description}>
+  <div class="max-w-screen-lg mx-auto px-4 sm:px-8 pt-12 pb-16">
+    <a href="/photography" class="text-sm text-slate-400 hover:text-white">← Back to photography</a>
+
+    <div class="mt-6 rounded-xl overflow-hidden bg-zinc-800">
+      {
+        isImageObject ? (
+          <Image src={image as any} alt={title} class="w-full h-auto object-cover" />
+        ) : (
+          <img src={image as string} alt={title} class="w-full h-auto object-cover" />
+        )
+      }
+    </div>
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-6">
+      <div>
+        <h1 class="font-title font-black text-white text-2xl sm:text-4xl">{title}</h1>
+        {description && <p class="text-slate-400 mt-2 max-w-xl">{description}</p>}
+        <p class="text-sm text-slate-500 mt-2">{[location, date].filter(Boolean).join(" · ")}</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        {tags?.map((tag: string) => <Tag tag={tag} />)}
+      </div>
+    </div>
+  </div>
+</Layout>

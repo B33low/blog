@@ -1,0 +1,61 @@
+---
+type Props = {
+  tags: string[];
+  // id of the grid container whose children should be filtered.
+  // each child is expected to carry a `data-tags="tag-one,tag-two"` attribute (lowercase).
+  targetId: string;
+};
+
+const { tags, targetId } = Astro.props;
+---
+
+<div class="flex flex-wrap gap-2 mb-8" data-filter-tabs data-target={targetId}>
+  <button
+    type="button"
+    data-filter="all"
+    class="filter-pill px-4 py-1.5 rounded-full text-sm font-medium border border-white/10 text-white bg-white/10"
+  >
+    All
+  </button>
+  {
+    tags.map((tag) => (
+      <button
+        type="button"
+        data-filter={tag.toLowerCase()}
+        class="filter-pill px-4 py-1.5 rounded-full text-sm font-medium border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 capitalize"
+      >
+        {tag}
+      </button>
+    ))
+  }
+</div>
+
+<script data-astro-rerun>
+  document.querySelectorAll<HTMLDivElement>("[data-filter-tabs]").forEach((tabGroup) => {
+    const targetId = tabGroup.dataset.target!;
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    const buttons = Array.from(tabGroup.querySelectorAll<HTMLButtonElement>(".filter-pill"));
+    const items = Array.from(target.children) as HTMLElement[];
+
+    const setActive = (filter: string) => {
+      items.forEach((item) => {
+        const itemTags = (item.dataset.tags ?? "").split(",");
+        const visible = filter === "all" || itemTags.includes(filter);
+        item.style.display = visible ? "" : "none";
+      });
+
+      buttons.forEach((btn) => {
+        const isActive = btn.dataset.filter === filter;
+        btn.classList.toggle("bg-white/10", isActive);
+        btn.classList.toggle("text-white", isActive);
+        btn.classList.toggle("text-slate-300", !isActive);
+      });
+    };
+
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => setActive(btn.dataset.filter!));
+    });
+  });
+</script>

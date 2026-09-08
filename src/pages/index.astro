@@ -1,16 +1,10 @@
 ---
 import Layout from "../components/layout.astro";
-import PostListing from "../components/post/post-list.astro";
-import Slogan from "../components/slogan.astro";
-import { getPostsByLang } from "../helpers";
+import HomeContent from "../components/home-content.astro";
 
 const { lang } = Astro.params;
-const posts = getPostsByLang(lang);
-
-const filteredPosts = posts.filter((post:any) => post.data.hideOnHomePage !== true);
 ---
 
-<Layout title="Blog">
-  <Slogan />
-  <PostListing posts={filteredPosts} />
+<Layout title="Weekend stories, films & things I build">
+  <HomeContent lang={lang} />
 </Layout>

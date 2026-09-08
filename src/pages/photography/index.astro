@@ -1,0 +1,31 @@
+---
+import Layout from "../../components/layout.astro";
+import PhotoCard from "../../components/media/photo-card.astro";
+import FilterTabs from "../../components/media/filter-tabs.astro";
+import Lightbox from "../../components/media/lightbox.astro";
+import { photos, photoTags } from "../../helpers";
+---
+
+<Layout title="Photography" description="Landscape, travel and underwater shots from recent trips.">
+  <div class="max-w-screen-xl mx-auto px-4 sm:px-8 pt-16 pb-8">
+    <p class="text-amber-400/90 text-xs uppercase tracking-[0.2em] mb-3">Photography</p>
+    <h1 class="font-title font-black text-white text-4xl sm:text-5xl mb-4">Captured moments</h1>
+    <p class="text-slate-400 max-w-2xl">
+      A selection of stills from the mountains, the coast and everywhere underwater.
+    </p>
+  </div>
+
+  <div class="max-w-screen-xl mx-auto px-4 sm:px-8 pb-24">
+    {photoTags.length > 0 && <FilterTabs tags={photoTags} targetId="photos-grid" />}
+    <div id="photos-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[minmax(0,1fr)]">
+      {photos.map((photo, index) => <PhotoCard photo={photo} tall={index % 5 === 0} />)}
+    </div>
+    {photos.length === 0 && (
+      <p class="text-slate-500">
+        No photos published yet — add an entry to <code>src/content/photos</code> to get started.
+      </p>
+    )}
+  </div>
+
+  <Lightbox />
+</Layout>

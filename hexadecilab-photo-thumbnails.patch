@@ -1,0 +1,313 @@
+diff --git a/MEDIA_GUIDE.md b/MEDIA_GUIDE.md
+index bab42e8..25b8b93 100644
+--- a/MEDIA_GUIDE.md
++++ b/MEDIA_GUIDE.md
+@@ -1,7 +1,71 @@
+ # Adding Films & Photos
+ 
+-Two new content collections sit alongside `blog` and `projects`: `films` and `photos`.
+-They're not split into `en`/`fr` folders — captions are short and the media speaks for itself.
++The `films` and `photos` collections sit alongside the technical blog. Media is hosted outside GitHub Pages, ideally on Cloudflare R2 behind `media.hexadecilab.com`.
++
++## Video quality policy
++
++Films intentionally have two public playback files:
++
++- **Web HQ** — the default. A high-quality 1440p/4K web encode that is reasonable to stream.
++- **Original 4K** — optional HEVC camera-quality file (for example a DJI Action 6 master around 50 Mb/s). It is never preloaded. The visitor must explicitly opt in after a data-usage warning.
++
++At 50 Mb/s the original consumes roughly **375 MB/minute**, so do not use it as the default `<video>` source.
++
++The private archival master can live in a separate non-public R2 bucket. `videoOriginalUrl` may point at a public remux/copy of the same HEVC bitstream (`-c copy`) if you want visitors to have access to the camera-quality version.
++
++## Adding a film
++
++Create `src/content/films/my-film.mdx`:
++
++```md
++---
++title: "Alps Roadtrip"
++description: "A few days on the road through mountain passes."
++date: 2026-08-15
++location: "Alps, FR · IT · CH"
++duration: "06:24"
++gear: "DJI Osmo Action 6"
++tags:
++  - Roadtrip
++  - Mountains
++cover: "https://media.hexadecilab.com/videos/alps-roadtrip/poster.jpg"
++
++# Loaded by default. Keep this high quality, but reasonable for normal streaming.
++videoWebUrl: "https://media.hexadecilab.com/videos/alps-roadtrip/fallback-1440p.mp4"
++
++# Optional. This URL is not requested until the visitor confirms the warning.
++videoOriginalUrl: "https://media.hexadecilab.com/videos/alps-roadtrip/master-hevc.mp4"
++originalBitrateMbps: 50
++originalCodec: "HEVC / H.265"
++
++videoFormat: landscape
++featured: true
++draft: false
++---
++
++Optional write-up / behind-the-scenes notes go here.
++```
++
++`videoUrl` is still accepted for old entries and behaves like `videoWebUrl`, so existing content does not have to be migrated immediately.
++
++### Recommended R2 layout
++
++```text
++hexadecilab-media/
++└── videos/
++    └── alps-roadtrip/
++        ├── fallback-1440p.mp4   # default Web HQ
++        ├── master-hevc.mp4      # public original, optional
++        ├── poster.jpg
++        └── metadata.json
++
++hexadecilab-originals/           # private bucket, optional
++└── videos/
++    └── alps-roadtrip/
++        └── master.mp4           # immutable archive
++```
++
++The player preserves the current playback position when switching quality. If the browser cannot decode the HEVC original, it automatically returns to Web HQ.
+ 
+ ## Adding a photo
+ 
+@@ -16,57 +80,40 @@ location: "Mediterranean Sea"
+ tags:
+   - Freediving
+   - Underwater
+-image: "../images/my-photo.jpg"        # local file → Astro optimizes it
+-# image: "https://media.hexadecilab.com/photos/my-photo.jpg"   # or point straight at R2
+-featured: true    # show on the homepage teaser grid
++image: "https://media.hexadecilab.com/photos/my-photo.avif"
++featured: true
+ draft: false
+ ---
+ ```
+ 
+-Local images placed in `src/content/images/` get resized/converted to webp automatically by
+-`astro:assets`. If you'd rather serve the untouched original (no re-compression at all), skip the
+-local copy and put the R2 URL directly in `image:`.
++Local images can still be placed under `src/content/images/` and handled by `astro:assets`. For externally prepared AVIF/JPEG assets, point `image` directly at R2.
+ 
+-## Adding a film
++## Media hosting workflow
+ 
+-Create `src/content/films/my-film.mdx`:
++1. Export the final cut locally.
++2. Keep the immutable original privately if desired.
++3. Generate a Web HQ version (for difficult underwater/action footage, a quality-targeted encode such as x264 CRF 16 is a good starting point rather than a very low fixed bitrate).
++4. Produce a web-friendly HEVC remux/copy for the optional original (`-c:v copy`, normally with `hvc1` and `faststart`) without re-encoding the video stream.
++5. Generate a poster image.
++6. Upload the public derivatives to `hexadecilab-media` and reference them in the film frontmatter.
+ 
+-```md
+----
+-title: "Alps Roadtrip"
+-description: "A few days on the road through mountain passes."
+-date: 2026-08-15
+-location: "Alps, FR · IT · CH"
+-duration: "06:24"
+-gear: "DJI Action 6"
+-tags:
+-  - Kitesurf
+-  - Watersport
+-cover: "../images/my-film-cover.jpg"    # poster/thumbnail — can be a still frame
+-videoUrl: "https://media.hexadecilab.com/films/my-film.mp4"
+-featured: true
+-draft: false
+----
++The Astro site never transcodes video. It only selects which R2 object the browser should play.
++
++## Large photos: lightweight gallery previews
++
++Remote photos are served by R2 as-is, so a 25 MB PNG used directly in a gallery card would cost 25 MB before the visitor even opens it. Photo entries now support an optional `thumbnail` field:
++
++```yaml
++image: "https://media.b33low.com/photos/Remontee.png"
++thumbnail: "https://media.b33low.com/photos/previews/Remontee.webp"
++```
++
++`thumbnail` is used by the Photography grids/homepage. `image` remains the full-resolution source used when the visitor opens the lightbox or photo page. Existing entries without `thumbnail` keep working and fall back to `image`.
++
++A small helper script publishes both versions through the existing Ant Media utility container:
+ 
+-Optional longer write-up / behind-the-scenes notes go here, rendered as the film's article body.
++```bash
++./scripts/publish-photo.sh ~/Pictures/Remontee.png
+ ```
+ 
+-`videoUrl` is played back with a plain `<video>` tag (see `src/components/media/video-player.astro`)
+-— no YouTube/Vimeo re-encode, so whatever you upload is exactly what visitors get.
+-
+-## Media hosting workflow (R2)
+-
+-1. Shoot, cull/organize privately with something like **Immich** (self-hosted, great for reviewing
+-   raw footage — not meant to be your public gallery though).
+-2. Export your final cuts/edits at full quality.
+-3. Upload the finished files to a **Cloudflare R2** bucket. R2 has no egress fees, which matters
+-   once people start actually watching/downloading video.
+-4. Put a custom domain in front of the bucket (e.g. `media.hexadecilab.com`) via a Cloudflare
+-   Worker or R2's built-in custom domain support, and use that as `MEDIA_BASE_URL` in
+-   `src/config.ts` / in each entry's `videoUrl` / `image`.
+-5. If you want adaptive-quality streaming instead of a single flat file, look at **PeerTube** —
+-   it supports S3-compatible storage (R2) natively and can sit in front of the bucket, and you'd
+-   swap the `<video>` tag for an embed of the PeerTube player.
+-
+-This keeps the "manager" (Immich for private review, optionally PeerTube for public streaming)
+-separate from the blog itself — the Astro site just needs a URL.
++It keeps the original unchanged and generates a max-1600px WebP preview at quality 82 before uploading both files to R2.
+diff --git a/src/components/media/photo-card.astro b/src/components/media/photo-card.astro
+index 73e145f..17e796b 100644
+--- a/src/components/media/photo-card.astro
++++ b/src/components/media/photo-card.astro
+@@ -11,7 +11,9 @@ type Props = {
+ 
+ const { photo, tall = false } = Astro.props;
+ const image = photo.data.image;
++const thumbnail = photo.data.thumbnail ?? image;
+ const isImageObject = typeof image === "object" && (image as any)?.src;
++const isThumbnailObject = typeof thumbnail === "object" && (thumbnail as any)?.src;
+ const fullSrc = isImageObject ? (image as any).src : (image as string);
+ const tagList = photo.data.tags ?? [];
+ const meta = [photo.data.location, photo.data.date].filter(Boolean).join(" · ");
+@@ -27,16 +29,19 @@ const meta = [photo.data.location, photo.data.date].filter(Boolean).join(" · ")
+   class:list={["group relative block overflow-hidden rounded-lg bg-zinc-800", tall ? "row-span-2 aspect-[3/4]" : "aspect-square"]}
+ >
+   {
+-    isImageObject ? (
++    isThumbnailObject ? (
+       <Image
+-        src={image as any}
++        src={thumbnail as any}
+         alt={photo.data.title}
++        loading="lazy"
+         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+       />
+     ) : (
+       <img
+-        src={image as string}
++        src={thumbnail as string}
+         alt={photo.data.title}
++        loading="lazy"
++        decoding="async"
+         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+       />
+     )
+diff --git a/src/components/media/photo-teaser-grid.astro b/src/components/media/photo-teaser-grid.astro
+index 2639ef4..bf04a64 100644
+--- a/src/components/media/photo-teaser-grid.astro
++++ b/src/components/media/photo-teaser-grid.astro
+@@ -14,9 +14,12 @@ const [a, b, c, d] = photos;
+ 
+ const cardProps = (photo: CollectionEntry<CollectionType.Photos>) => {
+   const image = photo.data.image;
++  const thumbnail = photo.data.thumbnail ?? image;
+   const isImageObject = typeof image === "object" && (image as any)?.src;
++  const isThumbnailObject = typeof thumbnail === "object" && (thumbnail as any)?.src;
+   return {
+-    isImageObject,
++    thumbnail,
++    isThumbnailObject,
+     fullSrc: isImageObject ? (image as any).src : (image as string),
+     meta: [photo.data.location, photo.data.date].filter(Boolean).join(" · "),
+   };
+@@ -34,10 +37,10 @@ const cardProps = (photo: CollectionEntry<CollectionType.Photos>) => {
+         data-meta={cardProps(a).meta}
+         class="group relative md:col-span-2 md:row-span-2 overflow-hidden rounded-lg bg-zinc-800 aspect-[4/5] md:aspect-auto"
+       >
+-        {cardProps(a).isImageObject ? (
+-          <Image src={a.data.image as any} alt={a.data.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
++        {cardProps(a).isThumbnailObject ? (
++          <Image src={cardProps(a).thumbnail as any} alt={a.data.title} loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+         ) : (
+-          <img src={a.data.image as string} alt={a.data.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
++          <img src={cardProps(a).thumbnail as string} alt={a.data.title} loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+         )}
+         <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+           <p class="text-white font-semibold">{a.data.title}</p>
+@@ -55,10 +58,10 @@ const cardProps = (photo: CollectionEntry<CollectionType.Photos>) => {
+             data-meta={cardProps(photo).meta}
+             class="group relative overflow-hidden rounded-lg bg-zinc-800 aspect-square md:aspect-auto"
+           >
+-            {cardProps(photo).isImageObject ? (
+-              <Image src={photo.data.image} alt={photo.data.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
++            {cardProps(photo).isThumbnailObject ? (
++              <Image src={cardProps(photo).thumbnail as any} alt={photo.data.title} loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+             ) : (
+-              <img src={photo.data.image} alt={photo.data.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
++              <img src={cardProps(photo).thumbnail as string} alt={photo.data.title} loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+             )}
+             <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+               <p class="text-white text-sm font-semibold">{photo.data.title}</p>
+@@ -76,10 +79,10 @@ const cardProps = (photo: CollectionEntry<CollectionType.Photos>) => {
+           data-meta={cardProps(d).meta}
+           class="group relative md:col-span-1 md:row-span-2 overflow-hidden rounded-lg bg-zinc-800 aspect-[4/5] md:aspect-auto"
+         >
+-          {cardProps(d).isImageObject ? (
+-            <Image src={d.data.image as any} alt={d.data.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
++          {cardProps(d).isThumbnailObject ? (
++            <Image src={cardProps(d).thumbnail as any} alt={d.data.title} loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+           ) : (
+-            <img src={d.data.image as string} alt={d.data.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
++            <img src={cardProps(d).thumbnail as string} alt={d.data.title} loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+           )}
+           <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+             <p class="text-white font-semibold">{d.data.title}</p>
+diff --git a/src/content/config.ts b/src/content/config.ts
+index 8838dac..d8318ee 100644
+--- a/src/content/config.ts
++++ b/src/content/config.ts
+@@ -50,7 +50,16 @@ const films = defineCollection({
+ 
+       cover: image().or(z.string()),
+ 
+-      videoUrl: z.string(),
++      // Legacy single-file field. Keep it for existing entries; new films should use videoWebUrl.
++      videoUrl: z.string().optional(),
++
++      // Default stream-friendly encode. This is the only file loaded automatically.
++      videoWebUrl: z.string().optional(),
++
++      // Optional camera-quality HEVC master. Never preloaded: visitors must explicitly opt in.
++      videoOriginalUrl: z.string().optional(),
++      originalBitrateMbps: z.number().positive().optional(),
++      originalCodec: z.string().optional(),
+ 
+       // Format d'affichage de la vidéo
+       videoFormat: z.enum(["auto", "landscape", "portrait", "square"]).default("landscape"),
+@@ -58,6 +67,14 @@ const films = defineCollection({
+       duration: z.string().optional(),
+       location: z.string().optional(),
+       gear: z.string().optional(),
++    }).superRefine((data, ctx) => {
++      if (!data.videoWebUrl && !data.videoUrl) {
++        ctx.addIssue({
++          code: z.ZodIssueCode.custom,
++          path: ["videoWebUrl"],
++          message: "A film needs videoWebUrl (or the legacy videoUrl field).",
++        });
++      }
+     }),
+ });
+ 
+@@ -80,8 +97,14 @@ const photos = defineCollection({
+           }),
+         ),
+       tags: z.array(z.string()).optional(),
+-      // display image; can point straight at an R2 url to skip Astro's re-encoding
++      // Full-resolution image. Remote R2 URLs are served as-is and are only loaded
++      // when the visitor explicitly opens the photo/detail page.
+       image: image().or(z.string()),
++
++      // Optional lightweight preview used by gallery cards/homepage. For large R2
++      // originals, point this at a pre-generated WebP/AVIF thumbnail.
++      thumbnail: image().or(z.string()).optional(),
++
+       location: z.string().optional(),
+     }),
+ });

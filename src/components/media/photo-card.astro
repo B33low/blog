@@ -1,0 +1,60 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import { CollectionType } from "../../types";
+
+type Props = {
+  photo: CollectionEntry<CollectionType.Photos>;
+  // taller card for masonry-style hero rows
+  tall?: boolean;
+};
+
+const { photo, tall = false } = Astro.props;
+const image = photo.data.image;
+const thumbnail = photo.data.thumbnail ?? image;
+const isImageObject = typeof image === "object" && (image as any)?.src;
+const isThumbnailObject = typeof thumbnail === "object" && (thumbnail as any)?.src;
+const fullSrc = isImageObject ? (image as any).src : (image as string);
+const tagList = photo.data.tags ?? [];
+const meta = [photo.data.location, photo.data.date].filter(Boolean).join(" · ");
+---
+
+<a
+  href={`/photography/${photo.slug}`}
+  data-tags={tagList.join(",").toLowerCase()}
+  data-lightbox-trigger
+  data-full-src={fullSrc}
+  data-title={photo.data.title}
+  data-meta={meta}
+  class:list={["group relative block overflow-hidden rounded-lg bg-zinc-800", tall ? "row-span-2 aspect-[3/4]" : "aspect-square"]}
+>
+  {
+    isThumbnailObject ? (
+      <Image
+        src={thumbnail as any}
+        alt={photo.data.title}
+        loading="lazy"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+    ) : (
+      <img
+        src={thumbnail as string}
+        alt={photo.data.title}
+        loading="lazy"
+        decoding="async"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+    )
+  }
+  <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+  <div class="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity translate-y-1 group-hover:translate-y-0 duration-300">
+    <p class="text-white text-sm font-semibold">{photo.data.title}</p>
+    {
+      (photo.data.location || photo.data.date) && (
+        <p class="text-slate-300 text-xs">
+          {[photo.data.location, photo.data.date].filter(Boolean).join(" · ")}
+        </p>
+      )
+    }
+  </div>
+</a>
