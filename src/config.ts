@@ -47,18 +47,17 @@ export const CONTACTS = {
 export const SLOGAN = "Engineer, Tinkerer, Explorer";
 
 export const ME_DESCRIPTION: Record<string, string> = {
-  en: `Hi, I'm Thomas, a French engineer who enjoys building things, learning new skills, and experimenting with whatever catches my interest.
+  en: `Hi, I'm Thomas, a French engineer who enjoys building things, learning new skills, and experimenting with a bit of everything.
+Originally an electronics engineer, I spend my time with embedded systems and video systems. I enjoy understanding how things work and turning ideas into something tangible, any random project I decide to explore.
 
-My background is in electrical engineering, embedded systems and software development. I enjoy understanding how things work and turning ideas into something tangible — whether that involves software, electronics, hardware, drones, robotics, or some random project I decided to explore.
+Outside of engineering, I'm curious about new hobbies. I enjoy crocheting, words, beautiful images, diving, and kitesurfing. In general, I like trying new things, exploring new places, and filming these experiences so I don't forget them.
 
-Outside of engineering, I'm usually picking up a new hobby. I enjoy crochet and knitting, and more recently I've been discovering water sports, freediving and spending more time outdoors. I like trying new things, exploring new places, filming the experiences along the way, and occasionally figuring out the technical side of doing it better.
+Hexadecilab is my little corner of the internet for all of this: projects, experiments, travels, photos, videos, notes, and everything that fascinates me at the moment.`,
+  fr: `Salut, je suis Thomas, un ingénieur qui aime construire des choses, apprendre de nouvelles compétences et expérimenter un peu tout.
 
-Hexadecilab is my little corner of the internet for all of that: projects, experiments, trips, photos, videos, notes, and whatever else I'm currently curious about.`,
-  fr: `Salut, je suis Thomas, un ingénieur français qui aime construire des choses, apprendre de nouvelles compétences et expérimenter tout ce qui attire ma curiosité.
+Électronicien à la base, je passe mon temps avec des systèmes embarqués et des systèmes vidéo. J'aime comprendre comment les choses fonctionnent et transformer des idées en quelque chose de concret, n'importe quel projet un peu random que je décide d'explorer.
 
-Je viens du génie électrique, des systèmes embarqués et du développement logiciel. J'aime comprendre comment les choses fonctionnent et transformer des idées en quelque chose de concret — que ce soit du logiciel, de l'électronique, du matériel, des drones, de la robotique, ou n'importe quel projet un peu random que je décide d'explorer.
-
-En dehors de l'ingénierie, je me lance régulièrement dans un nouveau hobby. J'aime le crochet et le tricot, et plus récemment je découvre les sports nautiques, la chasse sous-marine/l'apnée et je passe plus de temps dehors. J'aime essayer de nouvelles choses, explorer de nouveaux endroits, filmer ces expériences, et de temps en temps m'intéresser au côté technique pour mieux faire.
+En dehors de l'ingénierie, je suis curieux des nouveaux hobbies. J'aime le crochet, les mots, les belles images, la plongée, le kite. En général j'aime essayer de nouvelles choses, explorer de nouveaux endroits, filmer ces expériences afin de ne pas les oublier.
 
 Hexadecilab, c'est mon petit coin d'internet pour tout ça : projets, expérimentations, voyages, photos, vidéos, notes, et tout ce qui me passionne du moment.`,
 };
