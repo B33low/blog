@@ -83,7 +83,7 @@ export function resolveLang(lang?: string | null): Lang {
 }
 
 export function t(lang?: string | null) {
-  return UI[resolveLang(lang)];
+  return UI[resolveLang(lang) as keyof typeof UI];
 }
 
 // Default language-switch target for pages that don't need anything smarter
@@ -109,7 +109,7 @@ export function defaultAltUrls(pathname: string): Record<Lang, string> {
 // localized routes (Journal, About Me) point at the current language's
 // prefix instead of always going to English.
 export const getMenus = (lang?: string | null) => {
-  const l = resolveLang(lang);
+  const l = resolveLang(lang) as keyof typeof UI;
   const strings = UI[l].nav;
   return [
     { title: strings.videos, link: "/films", target: "_self" },
