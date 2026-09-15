@@ -3,6 +3,7 @@ import Hero from "./media/hero.astro";
 import SectionHeader from "./media/section-header.astro";
 import VideoCard from "./media/video-card.astro";
 import PhotoTeaserGrid from "./media/photo-teaser-grid.astro";
+import FeaturedCombo from "./media/featured-combo.astro";
 import Lightbox from "./media/lightbox.astro";
 import PostListItem from "./post/post-list-item.astro";
 import { films, photos, getPostsByLang } from "../helpers";
@@ -18,32 +19,44 @@ const latestPosts = getPostsByLang(lang)
   .filter((post: any) => post.data.hideOnHomePage !== true)
   .slice(0, 3);
 const journalHref = lang ? `/${lang}/posts` : "/en/posts";
+
+// The photo grid layout is designed for 3-4 photos and looks sparse/broken with
+// fewer. While the media library is this small, fold the film + photos into a
+// single "Featured" section instead of two nearly-identical teaser sections.
+const useCombinedShowcase = latestFilm && teaserPhotos.length > 0 && teaserPhotos.length <= 2;
 ---
 
 <Hero />
 
 {
-  latestFilm && (
+  useCombinedShowcase ? (
     <section class="max-w-screen-xl mx-auto px-4 sm:px-8 py-16">
-      <SectionHeader index="01" title="Featured Film" viewAllHref="/films" />
-      <VideoCard film={latestFilm} featured />
+      <SectionHeader index="01" title="Featured" viewAllHref="/films" />
+      <FeaturedCombo film={latestFilm!} photos={teaserPhotos} />
     </section>
-  )
-}
+  ) : (
+    <>
+      {latestFilm && (
+        <section class="max-w-screen-xl mx-auto px-4 sm:px-8 py-16">
+          <SectionHeader index="01" title="Featured Film" viewAllHref="/films" />
+          <VideoCard film={latestFilm} featured />
+        </section>
+      )}
 
-{
-  teaserPhotos.length > 0 && (
-    <section class="max-w-screen-xl mx-auto px-4 sm:px-8 py-8">
-      <SectionHeader index="02" title="Latest Photography" viewAllHref="/photography" />
-      <PhotoTeaserGrid photos={teaserPhotos} />
-    </section>
+      {teaserPhotos.length > 0 && (
+        <section class="max-w-screen-xl mx-auto px-4 sm:px-8 py-8">
+          <SectionHeader index="02" title="Latest Photography" viewAllHref="/photography" />
+          <PhotoTeaserGrid photos={teaserPhotos} />
+        </section>
+      )}
+    </>
   )
 }
 
 {
   latestPosts.length > 0 && (
     <section class="max-w-screen-xl mx-auto px-4 sm:px-8 py-16">
-      <SectionHeader index="03" title="Latest Journal" viewAllHref={journalHref} />
+      <SectionHeader index={useCombinedShowcase ? "02" : "03"} title="Latest Journal" viewAllHref={journalHref} />
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {latestPosts.map((post: any) => (
           <PostListItem post={post} />
