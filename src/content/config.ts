@@ -7,6 +7,11 @@ const blog = defineCollection({
       description: z.string(),
       draft: z.boolean().optional(),
       hideOnHomePage: z.boolean().optional(),
+      // Links this post to its translation(s) in other /blog/<lang>/ folders.
+      // Give both language versions of the same article the same translationId
+      // so the language switcher can jump straight to the equivalent post
+      // instead of falling back to the journal index.
+      translationId: z.string().optional(),
       date: z
         .string()
         .or(z.date())

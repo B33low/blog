@@ -1,16 +1,19 @@
 ---
-import { HERO } from "../../config";
+import { HERO_IMAGE } from "../../config";
+import { t } from "../../i18n/ui";
 
 type Props = {
   ctaHref?: string;
+  lang?: string;
 };
 
-const { ctaHref = "/films" } = Astro.props;
+const { ctaHref = "/films", lang } = Astro.props;
+const hero = t(lang).hero;
 ---
 
 <section class="relative w-full h-[92vh] min-h-[560px] max-h-[880px] overflow-hidden">
   <img
-    src={HERO.image}
+    src={HERO_IMAGE}
     alt=""
     class="absolute inset-0 w-full h-full object-cover"
     fetchpriority="high"
@@ -20,13 +23,13 @@ const { ctaHref = "/films" } = Astro.props;
 
   <div class="relative z-10 flex flex-col justify-end h-full max-w-screen-xl mx-auto px-4 sm:px-8 pb-16 md:pb-24">
     <p class="uppercase tracking-[0.2em] text-xs sm:text-sm text-amber-400/90 font-medium mb-4">
-      {HERO.eyebrow}
+      {hero.eyebrow}
     </p>
     <h1 class="font-title font-black text-white text-4xl sm:text-6xl md:text-7xl leading-[1.05] max-w-3xl">
-      {HERO.title}
+      {hero.title}
     </h1>
     <p class="mt-5 text-slate-300 text-base sm:text-lg max-w-xl leading-relaxed">
-      {HERO.subtitle}
+      {hero.subtitle}
     </p>
     <a
       href={ctaHref}
@@ -38,7 +41,7 @@ const { ctaHref = "/films" } = Astro.props;
       >
         ▶
       </span>
-      {HERO.ctaLabel}
+      {hero.ctaLabel}
     </a>
   </div>
 </section>

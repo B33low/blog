@@ -13,6 +13,21 @@ export const getPostsByLang = (lang?: string) => {
   return posts.filter((post:any) => post.slug.startsWith(lang));
 };
 
+// Given a post's slug (e.g. "en/are-cnn-dead") and a target language, finds
+// the slug of that same article's translation via the shared `translationId`
+// frontmatter field. Returns null if this post has no linked translation yet
+// (e.g. one language is missing that article), so callers can fall back to
+// the journal index instead of a dead link.
+export const getTranslatedPostSlug = (currentSlug: string, targetLang: string): string | null => {
+  const current = posts.find((post: any) => post.slug === currentSlug);
+  const translationId = current?.data?.translationId;
+  if (!translationId) return null;
+  const match = posts.find(
+    (post: any) => post.data.translationId === translationId && post.slug.startsWith(`${targetLang}/`),
+  );
+  return match ? match.slug.slice(targetLang.length + 1) : null;
+};
+
 export const tags = Array.from(
   new Set(
     posts

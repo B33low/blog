@@ -1,7 +1,20 @@
 ---
 import { SITE_LOGO, SITE_TITLE } from "../config";
+import { defaultAltUrls, resolveLang } from "../i18n/ui";
 import Menus from "./menus.astro";
 import LanguageDropdown from "./react/LanguageDropdown.tsx";
+
+type Props = {
+  lang?: string;
+  altUrls?: Record<string, string>;
+};
+
+const { lang, altUrls } = Astro.props;
+const currentLang = resolveLang(lang);
+// Pages with content that genuinely differs per language (e.g. individual
+// blog posts) pass their own altUrls; everything else falls back to a plain
+// prefix swap on the current path.
+const resolvedAltUrls = altUrls ?? defaultAltUrls(Astro.url.pathname);
 ---
 
 <header
@@ -17,7 +30,7 @@ import LanguageDropdown from "./react/LanguageDropdown.tsx";
 
     gtag("config", "G-P1YFXVMW8N");
   </script>
-  <div class="flex flex-row gap-8 items-center justify-between max-w-screen-md mx-auto h-24 px-4 sm:px-6">
+  <div class="flex flex-row gap-8 items-center justify-between max-w-screen-xl mx-auto h-24 px-4 sm:px-6">
     <a href="/" class="flex flex-row items-center justify-center gap-2">
       <img src={SITE_LOGO} alt="author avatar" class="w-[50px] rounded-full aspect-square" />
       <h1
@@ -26,8 +39,8 @@ import LanguageDropdown from "./react/LanguageDropdown.tsx";
         {SITE_TITLE}
       </h1>
     </a>
-    <Menus>
-      <LanguageDropdown client:load />
+    <Menus lang={currentLang}>
+      <LanguageDropdown client:load altUrls={resolvedAltUrls} currentLang={currentLang} />
     </Menus>
   </div>
 </header>

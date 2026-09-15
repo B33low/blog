@@ -2,13 +2,15 @@
 import type { CollectionEntry } from "astro:content";
 import { Image } from "astro:assets";
 import { CollectionType } from "../../types";
+import { t } from "../../i18n/ui";
 
 type Props = {
   film: CollectionEntry<CollectionType.Films>;
   featured?: boolean;
+  lang?: string;
 };
 
-const { film, featured = false } = Astro.props;
+const { film, featured = false, lang } = Astro.props;
 const cover = film.data.cover;
 const isCoverObject = typeof cover === "object" && (cover as any)?.src;
 const tagList = film.data.tags ?? [];
@@ -79,7 +81,7 @@ const aspectClass = {
     {
       featured && (
         <span class="mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-amber-500 text-neutral-900 text-sm font-semibold px-4 py-2 group-hover:bg-amber-400 transition-colors">
-          Watch the video →
+          {t(lang).home.watchVideo} →
         </span>
       )
     }

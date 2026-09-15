@@ -3,17 +3,19 @@ import type { CollectionEntry } from "astro:content";
 import { Image } from "astro:assets";
 import { CollectionType } from "../../types";
 import VideoCard from "./video-card.astro";
+import { t } from "../../i18n/ui";
 
 type Props = {
   film: CollectionEntry<CollectionType.Films>;
   photos: CollectionEntry<CollectionType.Photos>[];
+  lang?: string;
 };
 
 // Used when we only have a single film + a couple of stills (typically from the
 // same shoot). Rather than repeating the same imagery across two separate teaser
 // sections ("Featured Film" then "Latest Photography"), show them together as one
 // story: the video leads, and any related stills sit alongside as a small strip.
-const { film, photos } = Astro.props;
+const { film, photos, lang } = Astro.props;
 
 const photoProps = (photo: CollectionEntry<CollectionType.Photos>) => {
   const image = photo.data.image;
@@ -30,12 +32,14 @@ const photoProps = (photo: CollectionEntry<CollectionType.Photos>) => {
 ---
 
 <div class="flex flex-col gap-6">
-  <VideoCard film={film} featured />
+  <VideoCard film={film} featured lang={lang} />
 
   {
     photos.length > 0 && (
       <div class="flex flex-col sm:flex-row gap-4">
-        <p class="text-xs uppercase tracking-wider text-slate-500 shrink-0 sm:pt-2">Stills from the same session</p>
+        <p class="text-xs uppercase tracking-wider text-slate-500 shrink-0 sm:pt-2">
+          {t(lang).home.stillsFromSession}
+        </p>
         <div class="flex gap-4 flex-wrap">
           {photos.map((photo) => (
             <a

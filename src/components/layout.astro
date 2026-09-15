@@ -11,9 +11,11 @@ type Props = {
   title?: string;
   description?: string;
   hideFooter?: boolean;
+  lang?: string;
+  altUrls?: Record<string, string>;
 };
 
-const { title, description, hideFooter } = Astro.props;
+const { title, description, hideFooter, lang, altUrls } = Astro.props;
 ---
 
 <!doctype html>
@@ -26,12 +28,12 @@ const { title, description, hideFooter } = Astro.props;
   </head>
   <body class="relative bg-neutral-900">
     <div id="layout-container" class="z-10 flex flex-col h-full mb-8 overflow-y-scroll antialiased transparent">
-      <Header />
+      <Header lang={lang} altUrls={altUrls} />
 
       <div class="flex-auto">
         <slot />
       </div>
-      {!hideFooter && <Footer />}
+      {!hideFooter && <Footer lang={lang} />}
     </div>
 
     <StarBackground client:idle />

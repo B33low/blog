@@ -1,0 +1,68 @@
+---
+import Layout from "../../components/layout.astro";
+import "@fontsource-variable/jetbrains-mono";
+import { ME_DESCRIPTION, WORK_EXPERIENCE, ME_AVATAR, CONTACTS } from "../../config";
+import ContactRow from "../../components/contact-row.astro";
+import { t, resolveLang, defaultAltUrls } from "../../i18n/ui";
+
+export async function getStaticPaths() {
+  return [{ params: { lang: "en" } }, { params: { lang: "fr" } }];
+}
+
+const { lang } = Astro.params;
+const currentLang = resolveLang(lang);
+const strings = t(lang).me;
+const bio = ME_DESCRIPTION[currentLang] ?? ME_DESCRIPTION.en;
+---
+
+<Layout hideFooter title={strings.title} lang={lang} altUrls={defaultAltUrls(Astro.url.pathname)}>
+  <div class="max-w-screen-lg mx-auto pb-24">
+    <div class="bg-neutral-900/60 rounded-lg p-4 mt-[60px] md:mt-[80px] mb-6">
+      <div class="flex-col md:flex-row flex items-center justify-center gap-6 md:gap-10 h-full text-white">
+        <div>
+          <h3 class="text-white text-2xl font-logo">{strings.welcome}</h3>
+          <p class="font-mono text-slate-400 my-6 mb-10" set:html={bio} />
+          <h3 class="text-white text-2xl font-logo mb-5">{strings.contacts}</h3>
+          <ContactRow />
+        </div>
+        <div class="min-w-80 w-full">
+          <div class="flex flex-col border border-slate-600 gap-4 p-4 pt-0">
+            <img src={ME_AVATAR} alt="me" class="w-32 h-32 rounded-full mx-auto mt-4" />
+            <div class="flex flex-wrap items-center">
+              <h3 class="text-lg text-white font-logo">{strings.workExperience}</h3>
+            </div>
+            <ul class="flex flex-col gap-4 text-slate-400 m-0">
+              {
+                WORK_EXPERIENCE.map((item) => (
+                  <li class="flex flex-col">
+                    <h4 class="text-lg">{item.company}</h4>
+                    <div class="flex gap-2 justify-between text-slate-500">
+                      <p class="text-sm">{item.position}</p>
+                      <p class="text-sm">
+                        {item.startDate} - {item.endDate}
+                      </p>
+                    </div>
+                  </li>
+                ))
+              }
+            </ul>
+            <a class="px-4 py-2 border border-slate-400" target="_blank" href={CONTACTS.linkedIn}>
+              <div class="flex gap-2 items-center text-white justify-center">
+                <span>{strings.contactMe}</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const projects = document.querySelectorAll(".project");
+  projects.forEach((project) => {
+    project.addEventListener("click", () => {
+      window.location.href = `/projects/${project.id}`;
+    });
+  });
+</script>

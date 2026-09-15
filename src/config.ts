@@ -22,34 +22,9 @@ interface WorkExperienceEntry {
   endDate: string;
 }
 
-export const MENUS = [
-  {
-    title: "Videos",
-    link: "/films",
-    target: "_self",
-  },
-  {
-    title: "Photography",
-    link: "/photography",
-    target: "_self",
-  },
-  {
-    title: "Journal",
-    link: "/en/posts",
-    target: "_self",
-  },
-  {
-    title: "About Me",
-    link: "/me",
-    target: "_self",
-  },
-  {
-    title: "Github",
-    link: "https://github.com/B33low",
-    target: "_blank",
-    icon: "github",
-  },
-];
+// Nav is built in src/i18n/ui.ts (getMenus) since it needs the UI dictionary,
+// which itself imports LANGUAGES/DEFAULT_LANGUAGE from this file — keeping
+// the dictionary out of config.ts avoids a circular import.
 
 // Base URL for the R2 (or any S3-compatible) bucket serving public media.
 // Point this at your custom domain in front of the bucket, e.g.
@@ -58,15 +33,9 @@ export const MENUS = [
 // Set PUBLIC_MEDIA_BASE_URL in your .env to override for local/staging use.
 export const MEDIA_BASE_URL = import.meta.env.PUBLIC_MEDIA_BASE_URL || "https://media.hexadecilab.com";
 
-export const HERO = {
-  eyebrow: "Adventures, experiments & things I build",
-  title: "Chasing water, wind and light",
-  subtitle:
-    "A collection of things I enjoy doing — from water sports and outdoor adventures to photography, engineering projects and whatever I decide to try next.",
-  image: "/hero-freedive.webp",
-  ctaLabel: "Explore the latest film",
-};
-export const FOOTER_CONTENT = "Thomas Bolteau. All rights reserved.";
+// Hero copy is language-specific text, defined per-lang in src/i18n/ui.ts
+// (UI[lang].hero). Only the non-text bits (image) live here.
+export const HERO_IMAGE = "/hero-freedive.webp";
 
 export const CONTACTS = {
   linkedIn: "https://www.linkedin.com/in/thomas-bolteau",
@@ -77,13 +46,22 @@ export const CONTACTS = {
 
 export const SLOGAN = "Engineer, Tinkerer, Explorer";
 
-export const ME_DESCRIPTION = `Hi, I'm Thomas, a French engineer who enjoys building things, learning new skills, and experimenting with whatever catches my interest.
+export const ME_DESCRIPTION: Record<string, string> = {
+  en: `Hi, I'm Thomas, a French engineer who enjoys building things, learning new skills, and experimenting with whatever catches my interest.
 
 My background is in electrical engineering, embedded systems and software development. I enjoy understanding how things work and turning ideas into something tangible — whether that involves software, electronics, hardware, drones, robotics, or some random project I decided to explore.
 
 Outside of engineering, I'm usually picking up a new hobby. I enjoy crochet and knitting, and more recently I've been discovering water sports, freediving and spending more time outdoors. I like trying new things, exploring new places, filming the experiences along the way, and occasionally figuring out the technical side of doing it better.
 
-Hexadecilab is my little corner of the internet for all of that: projects, experiments, trips, photos, videos, notes, and whatever else I'm currently curious about.`;
+Hexadecilab is my little corner of the internet for all of that: projects, experiments, trips, photos, videos, notes, and whatever else I'm currently curious about.`,
+  fr: `Salut, je suis Thomas, un ingénieur français qui aime construire des choses, apprendre de nouvelles compétences et expérimenter tout ce qui attire ma curiosité.
+
+Je viens du génie électrique, des systèmes embarqués et du développement logiciel. J'aime comprendre comment les choses fonctionnent et transformer des idées en quelque chose de concret — que ce soit du logiciel, de l'électronique, du matériel, des drones, de la robotique, ou n'importe quel projet un peu random que je décide d'explorer.
+
+En dehors de l'ingénierie, je me lance régulièrement dans un nouveau hobby. J'aime le crochet et le tricot, et plus récemment je découvre les sports nautiques, la chasse sous-marine/l'apnée et je passe plus de temps dehors. J'aime essayer de nouvelles choses, explorer de nouveaux endroits, filmer ces expériences, et de temps en temps m'intéresser au côté technique pour mieux faire.
+
+Hexadecilab, c'est mon petit coin d'internet pour tout ça : projets, expérimentations, voyages, photos, vidéos, notes, et tout ce qui me passionne du moment.`,
+};
 
 export const WORK_EXPERIENCE: WorkExperienceEntry[] = [
   //   {

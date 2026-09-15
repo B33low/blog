@@ -1,11 +1,14 @@
 ---
+import { t } from "../../i18n/ui";
+
 type Props = {
   index: string;
   title: string;
   viewAllHref?: string;
+  lang?: string;
 };
 
-const { index, title, viewAllHref } = Astro.props;
+const { index, title, viewAllHref, lang } = Astro.props;
 ---
 
 <div class="flex items-end justify-between mb-6">
@@ -17,7 +20,7 @@ const { index, title, viewAllHref } = Astro.props;
   {
     viewAllHref && (
       <a href={viewAllHref} class="text-sm text-slate-400 hover:text-white whitespace-nowrap">
-        View all →
+        {t(lang).home.viewAll} →
       </a>
     )
   }

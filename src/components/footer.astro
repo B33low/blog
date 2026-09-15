@@ -1,10 +1,16 @@
 ---
 import ContactRow from "./contact-row.astro";
-import { FOOTER_CONTENT } from "../config";
+import { t } from "../i18n/ui";
+
+type Props = {
+  lang?: string;
+};
+
+const { lang } = Astro.props;
 ---
 
 <footer class="bg-zinc-800/40 w-full h-15 flex items-center justify-center text-slate-400 py-6 px-8 justify-between">
-  <span class="hidden md:block"> © <span id="current-year"> </span> {FOOTER_CONTENT} </span>
+  <span class="hidden md:block"> © <span id="current-year"> </span> {t(lang).footer.rights} </span>
   <ContactRow />
 </footer>
 

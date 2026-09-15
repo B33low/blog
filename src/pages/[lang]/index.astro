@@ -9,6 +9,6 @@ export async function getStaticPaths() {
 const { lang } = Astro.params;
 ---
 
-<Layout title="Weekend stories, films & things I build">
+<Layout title="Weekend stories, films & things I build" lang={lang}>
   <HomeContent lang={lang} />
 </Layout>

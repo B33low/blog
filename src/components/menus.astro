@@ -1,15 +1,22 @@
 ---
-import { MENUS } from "../config";
+import { getMenus } from "../i18n/ui";
 import { Icon } from "astro-icon/components";
+
+type Props = {
+  lang?: string;
+};
+
+const { lang } = Astro.props;
+const menuItems = getMenus(lang);
 ---
 
 <div class="flex flex-row gap-4 items-center">
   {
-    MENUS.map((item) => (
+    menuItems.map((item) => (
       <a
         href={item.link}
         target={item.target}
-        class="h-full mx-0 md:mx-4 text-sm text-slate-400 hover:text-slate-100 flex items-center gap-2"
+        class="h-full mx-0 md:mx-4 text-sm text-slate-400 hover:text-slate-100 flex items-center gap-2 whitespace-nowrap"
       >
         {item.icon && (
           <span>

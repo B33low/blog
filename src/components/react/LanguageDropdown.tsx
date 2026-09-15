@@ -1,20 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 import { LANGUAGES } from "../../config";
 
-const Dropdown = () => {
-  const [currentLanguage, setCurrentLanguage] = useState("en");
+type Props = {
+  // Precomputed per-language target URLs for the current page (e.g. the
+  // matching translated blog post, or the same page with the prefix swapped).
+  // Falls back to `/${lang}` for any language not present here.
+  altUrls?: Record<string, string>;
+  currentLang?: string;
+};
+
+const Dropdown = ({ altUrls, currentLang }: Props) => {
+  const [currentLanguage, setCurrentLanguage] = useState(currentLang ?? "en");
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleLanguageChange = (lang: string) => {
-    setCurrentLanguage(lang);
     setIsOpen(false);
     if (lang === currentLanguage) return;
-    if (lang === "-") {
-      window.location.href = "/";
-    } else {
-      window.location.href = `/${lang}`;
-    }
+    window.location.href = altUrls?.[lang] ?? `/${lang}`;
   };
 
   const toggleDropdown = () => {
@@ -27,9 +30,12 @@ const Dropdown = () => {
         setIsOpen(false);
       }
     };
-    const language = window.location.pathname.split("/")[1] || "-";
-    if (LANGUAGES.includes(language)) {
-      setCurrentLanguage(language);
+
+    if (!currentLang) {
+      const language = window.location.pathname.split("/")[1] || "-";
+      if (LANGUAGES.includes(language)) {
+        setCurrentLanguage(language);
+      }
     }
 
     document.addEventListener("click", handleClickOutside);
@@ -37,7 +43,7 @@ const Dropdown = () => {
     return () => {
       document.removeEventListener("click", handleClickOutside);
     };
-  }, []);
+  }, [currentLang]);
 
   return (
     <div className="relative inline-block" ref={dropdownRef}>
@@ -58,9 +64,9 @@ const Dropdown = () => {
           className="absolute right-0 mt-2 w-20 origin-top-right rounded-md bg-zinc-900 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
           role="menu"
         >
-          
+
           {LANGUAGES.map((lang) => (
-            <div className="py-1">
+            <div className="py-1" key={lang}>
               <button
                 className="text-slate-400 inline-block px-4 py-2 text-sm hover:bg-slate-800 w-full"
                 onClick={() => handleLanguageChange(lang)}

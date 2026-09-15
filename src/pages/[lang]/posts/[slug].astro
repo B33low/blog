@@ -8,6 +8,8 @@ import Slogan from "../../../components/slogan.astro";
 import DateTag from "../../../components/date-tag.astro";
 import PostContent from "../../../components/post/post-content.astro";
 import { CollectionType } from "../../../types";
+import { getTranslatedPostSlug } from "../../../helpers";
+import { LANGUAGES } from "../../../config";
 
 type Post = CollectionEntry<CollectionType.Blog>;
 export async function getStaticPaths() {
@@ -26,13 +28,25 @@ type Props = {
 };
 
 const { post } = Astro.props;
+const { lang } = Astro.params;
 
 const cover = post.data.cover ?? "";
 const isCoverObject = typeof cover === "object" && cover?.src;
 const coverSrc = isCoverObject ? `${cover.src}` : `${cover}`;
+
+// This specific article's slug differs per language (it's a real translation,
+// not the same URL with a swapped prefix), so resolve the equivalent post in
+// each language explicitly and fall back to that language's journal index if
+// this particular article hasn't been translated yet.
+const altUrls = Object.fromEntries(
+  LANGUAGES.map((targetLang) => {
+    const translatedSlug = getTranslatedPostSlug(post.slug, targetLang);
+    return [targetLang, translatedSlug ? `/${targetLang}/posts/${translatedSlug}` : `/${targetLang}/posts`];
+  }),
+);
 ---
 
-<Layout title={post.data.title} description={post.data.description}>
+<Layout title={post.data.title} description={post.data.description} lang={lang} altUrls={altUrls}>
   <Fragment slot="meta">
     <meta property="og:image" content={coverSrc} />
     <meta property="twitter:image" content={coverSrc} />
