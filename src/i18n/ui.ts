@@ -18,12 +18,12 @@ export const UI = {
       eyebrow: "Adventures, experiments & things I build",
       title: "Chasing water, wind and light",
       subtitle:
-        "A collection of things I enjoy doing — from water sports and outdoor adventures to photography, engineering projects and whatever I decide to try next.",
-      ctaLabel: "Explore the latest film",
+        "A collection of things I enjoy doing from water sports and outdoor adventures to engineering projects and whatever I decide to try next.",
+      ctaLabel: "Explore the latest video",
     },
     home: {
       featured: "Featured",
-      featuredFilm: "Featured Film",
+      featuredFilm: "Featured Video",
       latestPhotography: "Latest Photography",
       latestJournal: "Latest Journal",
       viewAll: "View all",
@@ -53,12 +53,12 @@ export const UI = {
       eyebrow: "Aventures, expérimentations et projets en cours",
       title: "À la poursuite de l'eau, du vent et de la lumière",
       subtitle:
-        "Un aperçu de ce que j'aime faire — des sports nautiques et de l'aventure en plein air à la photographie, en passant par des projets d'ingénierie et tout ce qui me passe par la tête.",
-      ctaLabel: "Voir le dernier film",
+        "Un aperçu de ce que j'aime faire des sports nautiques et de l'aventure en plein air, en passant par des projets d'ingénierie et tout ce qui me passe par la tête.",
+      ctaLabel: "Voir la dernière vidéo",
     },
     home: {
       featured: "À la une",
-      featuredFilm: "Film à la une",
+      featuredFilm: "Vidéo à la une",
       latestPhotography: "Dernières photos",
       latestJournal: "Derniers articles",
       viewAll: "Tout voir",
